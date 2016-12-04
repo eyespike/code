@@ -37,7 +37,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/flir.o \
 	${OBJECTDIR}/gtk.o \
-	${OBJECTDIR}/gtk_hw.o
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/thread_play.o
 
 
 # C Compiler Flags
@@ -74,10 +75,15 @@ ${OBJECTDIR}/gtk.o: gtk.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/gtk.o gtk.c
 
-${OBJECTDIR}/gtk_hw.o: gtk_hw.c
+${OBJECTDIR}/main.o: main.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/gtk_hw.o gtk_hw.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+
+${OBJECTDIR}/thread_play.o: thread_play.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/thread_play.o thread_play.c
 
 # Subprojects
 .build-subprojects:

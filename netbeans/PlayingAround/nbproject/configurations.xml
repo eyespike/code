@@ -15,7 +15,8 @@
                    projectFiles="true">
       <itemPath>flir.c</itemPath>
       <itemPath>gtk.c</itemPath>
-      <itemPath>gtk_hw.c</itemPath>
+      <itemPath>main.c</itemPath>
+      <itemPath>thread_play.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -48,7 +49,9 @@
       </item>
       <item path="gtk.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="gtk_hw.c" ex="false" tool="0" flavor2="0">
+      <item path="main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="thread_play.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -77,7 +80,9 @@
       </item>
       <item path="gtk.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="gtk_hw.c" ex="false" tool="0" flavor2="0">
+      <item path="main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="thread_play.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>

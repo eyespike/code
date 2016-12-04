@@ -102,25 +102,123 @@ int main( int argc, char *argv[])
 }
 */
 
+
+
 #include <gtk/gtk.h>
+#include <stdio.h>
 #include <stdbool.h>
+#include<string.h>
+#include<pthread.h>
+#include<stdlib.h>
+#include<unistd.h>
 
+// --- Constants
+static const int LOOPTIMES = 100;
 
+// --- Global Variables
+GtkApplication *app_ui;
+pthread_t tid[2];
 bool _active = false;
+bool _monitorActive = false;
+
+
+void* monitor(void *arg)
+{
+	_monitorActive = true;
+	
+	int currentIteration = 0;
+	
+	while(_active){
+	
+		usleep(100000);
+		currentIteration ++;
+		if(currentIteration > LOOPTIMES){
+			_active = !_active;
+		} else {
+			printf("Iteration: %d\n", currentIteration);
+		}
+	}
+	
+	_monitorActive = false;
+	pthread_exit(NULL);	
+}
+
+
+GtkWidget* find_child(GtkWidget* parent, const gchar* name)
+{
+	const gchar* parentName = gtk_widget_get_name(parent);
+	if (strcmp(g_utf8_casefold(parentName, sizeof(parentName)), g_utf8_casefold(name, sizeof(name))) == 0) { 
+			return parent;
+	}
+
+	if (GTK_IS_BIN(parent)) {
+			GtkWidget *child = gtk_bin_get_child(GTK_BIN(parent));
+			return find_child(child, name);
+	}
+
+	if (GTK_IS_CONTAINER(parent)) {
+			GList *children = gtk_container_get_children(GTK_CONTAINER(parent));
+			do {
+					GtkWidget* widget = find_child(children->data, name);
+					if (widget != NULL) {
+							return widget;
+					}
+			} while ((children = g_list_next(children)) != NULL);
+	}
+
+	return NULL;
+}
+
+
 
 static void toggle_status (GtkWidget *widget, gpointer *data)
 {	
+	
+	GtkWindow *window = gtk_application_get_active_window(app_ui);
+/*
+	GtkWidget* button = find_child((GtkWidget*)window, "button1");
+	GtkWidget* label = find_child((GtkWidget*)window, "statuslabel");
+*/
+	
+/*
+	if(_active){
+		gtk_label_set_text((GtkLabel*)label, "Inactive");
+		gtk_button_set_label((GtkButton*)button, "Start");
+		_active = !_active;
+	} else if(!_monitorActive) {
+		gtk_label_set_text((GtkLabel*)label, "Monitoring");
+		gtk_button_set_label((GtkButton*)button, "Stop");
+		_active = !_active;
+		
+		// Spin up thread to start monitoring
+		int err;
+		err = pthread_create(&(tid[0]), NULL, &monitor, NULL);
+		if(err != 0)
+			printf("\nThreading error: [%s]", strerror(err));
+		else
+			printf("\nMonitoring started\n");
+	}	
+*/
+
 	if(_active){
 		gtk_label_set_text((GtkLabel*)data, "Inactive");
 		gtk_button_set_label((GtkButton*)widget, "Start");
-		
-	} else {
+		_active = !_active;
+	} else if(!_monitorActive) {
 		gtk_label_set_text((GtkLabel*)data, "Monitoring");
 		gtk_button_set_label((GtkButton*)widget, "Stop");
-	}
-	_active = !_active;
-}
+		_active = !_active;
+		
+		// Spin up thread to start monitoring
+		int err;
+		err = pthread_create(&(tid[0]), NULL, &monitor, NULL);
+		if(err != 0)
+			printf("\nThreading error: [%s]", strerror(err));
+		else
+			printf("\nMonitoring started\n");
+	}	
 
+}
 int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
@@ -131,9 +229,11 @@ int main (int argc, char *argv[])
   gtk_init (&argc, &argv);
 
   // Construct a GtkBuilder instance and load our UI description
+  app_ui = gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
   builder = gtk_builder_new ();
+  gtk_builder_set_application(builder, app_ui);
   gtk_builder_add_from_file (builder, "builder.xml", NULL);
-
+    
   // Connect signal handlers to the constructed widgets.
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);

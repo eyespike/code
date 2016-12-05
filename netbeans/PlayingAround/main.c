@@ -1,106 +1,3 @@
- /*#include <gtk/gtk.h>
-
-static void
-print_hello (GtkWidget *widget,
-             gpointer   data)
-{
-  g_print ("Hello World\n");
-}
-
-static void
-activate (GtkApplication *app,
-          gpointer        user_data)
-{
-  GtkWidget *window;
-  GtkWidget *button;
-  GtkWidget *button_box;
-
-  window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Window");
-  gtk_window_set_default_size (GTK_WINDOW (window), 300, 200);
-
-  button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
-  gtk_container_add (GTK_CONTAINER (window), button_box);
-
-  button = gtk_button_new_with_label ("Hello World - Destroy Me!!!");
-  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-  g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
-  gtk_container_add (GTK_CONTAINER (button_box), button);
-
-  gtk_widget_show_all (window);
-}
-
-int
-main (int    argc,
-      char **argv)
-{
-  GtkApplication *app;
-  int status;
-
-  app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-  status = g_application_run (G_APPLICATION (app), argc, argv);
-  g_object_unref (app);
-
-  return status;
-}
-*/
-
-/*
-
-#include <gtk/gtk.h>
-
-static void print_hello (GtkWidget *widget, gpointer data)
-{
-  g_print ("Hello World\n");
-}
-
-void changeImage(GtkWidget *image)
-{
-	gtk_image_set_from_file (image, "/home/pi/PlayingAround/dist/Debug/GNU-Linux/l_IMG_0002.pgm");
-
-
-}
-
-int main( int argc, char *argv[])
-{
-    GtkWidget *window;
-    GtkWidget *layout;
-    GtkWidget *image;
-    GtkWidget *button;
-
-    gtk_init(&argc, &argv);
-
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_default_size(GTK_WINDOW(window), 600, 380);
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-
-    layout = gtk_layout_new(NULL, NULL);
-    gtk_container_add(GTK_CONTAINER (window), layout);
-    gtk_widget_show(layout);
-
-    //image = gtk_image_new_from_file("/home/pi/Pictures/puppy.jpg");
-	image = gtk_image_new_from_file("/home/pi/PlayingAround/dist/Debug/GNU-Linux/l_IMG_0003.pgm");
-    gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
-
-    button = gtk_button_new_with_label("Close Me");
-	//g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-	//g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
-	g_signal_connect_swapped (button, "clicked", G_CALLBACK (changeImage), image);
-	
-    gtk_layout_put(GTK_LAYOUT(layout), button, 150, 50);
-    gtk_widget_set_size_request(button, 80, 35);
-
-    g_signal_connect_swapped(G_OBJECT(window), "destroy",
-    G_CALLBACK(gtk_main_quit), NULL);
-
-    gtk_widget_show_all(window);
-
-    gtk_main();
-
-    return 0;
-}
-*/
 
 
 
@@ -111,123 +8,64 @@ int main( int argc, char *argv[])
 #include<pthread.h>
 #include<stdlib.h>
 #include<unistd.h>
-
-// --- Constants
-static const int LOOPTIMES = 100;
+#include "monitor.h"
 
 // --- Global Variables
+GMainContext *mainc;
 GtkApplication *app_ui;
+GtkLabel *statusLabel;
+GtkButton *monitorButton;
+
 pthread_t tid[2];
 bool _active = false;
-bool _monitorActive = false;
 
 
-void* monitor(void *arg)
+// --- Forward Declarations
+//static void toggle_status (GtkWidget *widget, gpointer *data);
+
+
+void update_monitor_status_labels()
 {
-	_monitorActive = true;
 	
-	int currentIteration = 0;
-	
-	while(_active){
-	
-		usleep(100000);
-		currentIteration ++;
-		if(currentIteration > LOOPTIMES){
-			_active = !_active;
-		} else {
-			printf("Iteration: %d\n", currentIteration);
-		}
+	if(!_active){
+		gtk_label_set_text(statusLabel, "Inactive");
+		gtk_button_set_label(monitorButton, "Start");
+	} else {
+		gtk_label_set_text(statusLabel, "Monitoring");
+		gtk_button_set_label(monitorButton, "Stop");
 	}
-	
-	_monitorActive = false;
-	pthread_exit(NULL);	
 }
 
 
-GtkWidget* find_child(GtkWidget* parent, const gchar* name)
-{
-	const gchar* parentName = gtk_widget_get_name(parent);
-	if (strcmp(g_utf8_casefold(parentName, sizeof(parentName)), g_utf8_casefold(name, sizeof(name))) == 0) { 
-			return parent;
-	}
-
-	if (GTK_IS_BIN(parent)) {
-			GtkWidget *child = gtk_bin_get_child(GTK_BIN(parent));
-			return find_child(child, name);
-	}
-
-	if (GTK_IS_CONTAINER(parent)) {
-			GList *children = gtk_container_get_children(GTK_CONTAINER(parent));
-			do {
-					GtkWidget* widget = find_child(children->data, name);
-					if (widget != NULL) {
-							return widget;
-					}
-			} while ((children = g_list_next(children)) != NULL);
-	}
-
-	return NULL;
-}
-
-
-
-static void toggle_status (GtkWidget *widget, gpointer *data)
+static void toggle_monitor (GtkWidget *widget, gpointer *data)
 {	
+	_active = !_active;
+	update_monitor_status_labels();
 	
-	GtkWindow *window = gtk_application_get_active_window(app_ui);
-/*
-	GtkWidget* button = find_child((GtkWidget*)window, "button1");
-	GtkWidget* label = find_child((GtkWidget*)window, "statuslabel");
-*/
-	
-/*
-	if(_active){
-		gtk_label_set_text((GtkLabel*)label, "Inactive");
-		gtk_button_set_label((GtkButton*)button, "Start");
-		_active = !_active;
-	} else if(!_monitorActive) {
-		gtk_label_set_text((GtkLabel*)label, "Monitoring");
-		gtk_button_set_label((GtkButton*)button, "Stop");
-		_active = !_active;
+	if(_active && !_monitorActive) {
 		
 		// Spin up thread to start monitoring
 		int err;
-		err = pthread_create(&(tid[0]), NULL, &monitor, NULL);
+		err = pthread_create(&(tid[0]), NULL, &f_monitor, NULL);
 		if(err != 0)
 			printf("\nThreading error: [%s]", strerror(err));
 		else
 			printf("\nMonitoring started\n");
-	}	
-*/
-
-	if(_active){
-		gtk_label_set_text((GtkLabel*)data, "Inactive");
-		gtk_button_set_label((GtkButton*)widget, "Start");
-		_active = !_active;
-	} else if(!_monitorActive) {
-		gtk_label_set_text((GtkLabel*)data, "Monitoring");
-		gtk_button_set_label((GtkButton*)widget, "Stop");
-		_active = !_active;
-		
-		// Spin up thread to start monitoring
-		int err;
-		err = pthread_create(&(tid[0]), NULL, &monitor, NULL);
-		if(err != 0)
-			printf("\nThreading error: [%s]", strerror(err));
-		else
-			printf("\nMonitoring started\n");
-	}	
-
+	}
 }
+
+
 int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
   GObject *window;
   GObject *button;
-  GObject *label;
-
+  
   gtk_init (&argc, &argv);
 
+  mainc = g_main_context_default();
+  
+  
   // Construct a GtkBuilder instance and load our UI description
   app_ui = gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
   builder = gtk_builder_new ();
@@ -238,9 +76,10 @@ int main (int argc, char *argv[])
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-  label = gtk_builder_get_object (builder, "statuslabel");
-  button = gtk_builder_get_object (builder, "button1");
-  g_signal_connect (button, "clicked", G_CALLBACK (toggle_status), (gpointer)label);
+  // Monitor toggle & status
+  statusLabel = (GtkLabel*)gtk_builder_get_object (builder, "statuslabel");
+  monitorButton = (GtkButton*)gtk_builder_get_object (builder, "button1");
+  g_signal_connect (monitorButton, "clicked", G_CALLBACK (toggle_monitor), NULL);
   
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);

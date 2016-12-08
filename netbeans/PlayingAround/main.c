@@ -1,6 +1,3 @@
-
-
-
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -24,14 +21,22 @@ bool _active = false;
 //static void toggle_status (GtkWidget *widget, gpointer *data);
 
 
-void update_monitor_status_labels()
+void update_monitor_status_labels(char *labelValue)
 {
 	
 	if(!_active){
-		gtk_label_set_text(statusLabel, "Inactive");
+		if(labelValue == NULL)
+			gtk_label_set_text(statusLabel, "Inactive");
+		else
+			gtk_label_set_text(statusLabel, labelValue);
+		
 		gtk_button_set_label(monitorButton, "Start");
 	} else {
-		gtk_label_set_text(statusLabel, "Monitoring");
+		if(labelValue == NULL)
+			gtk_label_set_text(statusLabel, "Monitoring");
+		else
+			gtk_label_set_text(statusLabel, labelValue);
+		
 		gtk_button_set_label(monitorButton, "Stop");
 	}
 }
@@ -40,7 +45,7 @@ void update_monitor_status_labels()
 static void toggle_monitor (GtkWidget *widget, gpointer *data)
 {	
 	_active = !_active;
-	update_monitor_status_labels();
+	update_monitor_status_labels(NULL);
 	
 	if(_active && !_monitorActive) {
 		

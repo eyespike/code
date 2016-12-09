@@ -5,29 +5,29 @@
  */
 
 /* 
- * File:   monitor.h
+ * File:   main.h
  * Author: Jeff
  *
- * Created on December 5, 2016, 8:31 AM
+ * Created on December 5, 2016, 8:34 AM
  */
 
-#ifndef MONITOR_H
-#define MONITOR_H
+#ifndef MAIN_H
+#define MAIN_H
+#include <gtk/gtk.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern GMainContext *mainc;	
+extern bool _active;
+extern GtkLabel *statusLabel;
+extern GtkButton *monitorButton;
 
-extern bool _monitorActive;	
-char* save_pgm_file(void);
-int connect_to_lepton();
-int transfer(int fd);
-void* f_monitor(void *arg);
-
+void update_monitor_status_labels();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MONITOR_H */
+#endif /* MAIN_H */
 

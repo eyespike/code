@@ -18,7 +18,12 @@
 extern "C" {
 #endif
 
-extern bool _monitorActive;	
+extern bool _monitorActive;
+extern int water_tc_differential;
+extern int fire_tc_differential;
+extern int min_detected_pixel_count;
+extern bool isFirstTransferFrame;
+
 char* save_pgm_file(void);
 int connect_to_lepton();
 int transfer(int fd);

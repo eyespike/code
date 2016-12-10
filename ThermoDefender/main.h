@@ -22,8 +22,10 @@ extern GMainContext *mainc;
 extern bool _active;
 extern GtkLabel *statusLabel;
 extern GtkButton *monitorButton;
+extern GtkImage *captureImage;
 
 void update_monitor_status_labels();
+void set_capture_image_from_current_array(GtkImage *image);
 
 #ifdef __cplusplus
 }

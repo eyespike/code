@@ -18,8 +18,9 @@
 // --- Constants
 static const int MAX_CYCLES = 240;
 static const int CYCLES_TO_RESET_BASE = 240;
-static const int max_tc_differential = 50;
-static const int min_detected_pixel_count = 300;
+int water_tc_differential = 50;
+int fire_tc_differential = 400;
+int min_detected_pixel_count = 300;
 static unsigned int lepton_reference_array[80][80];
 
 
@@ -30,6 +31,8 @@ static uint8_t mode;
 static uint8_t bits = 8;
 static uint32_t speed = 16000000;
 static uint16_t delay;
+bool isFirstTransferFrame;
+static uint16_t resetCount = 0;
 
 #define VOSPI_FRAME_SIZE (164)
 #define PACKETS_PER_FRAME (60)
@@ -47,11 +50,18 @@ gboolean set_status_monitor_ended(gpointer data){
 	return FALSE;
 }
 
-gboolean set_status_monitor_error(gpointer data){
+gboolean set_status_monitor_status(gpointer data){
 	
 	update_monitor_status_labels((char*)data);
 	return FALSE;
 }
+
+gboolean set_capture_image(gpointer data){
+	
+	set_capture_image_from_current_array((GtkImage*)data);
+	return FALSE;
+}
+
 
 static void pabort(const char *s)
 {
@@ -61,7 +71,7 @@ static void pabort(const char *s)
 	_monitorActive = false;
 	
 	// Call main thread to update the GUI
-	g_main_context_invoke(mainc, set_status_monitor_error, (gpointer)s);
+	g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
 	
 	// Exit the thread
 	pthread_exit(NULL);
@@ -152,24 +162,41 @@ int transfer(int fd)
 	{
 		frame_number = lepton_frame_packet[1];
 		
-		//printf("frame=%d\n", frame_number);
+		//printf("Frame: %d, Is first frame: %d\n", frame_number, isFirstTransferFrame);
+		
+/*		if(!isFirstTransferFrame && frame_number == 0)
+		{
+			printf("Misaligned packet detected. Pausing.\n");
 
+ * 			resetCount++;
+			usleep(1000);
+			
+			if(resetCount == 500){
+
+				usleep(750000);
+				return 59;
+			}
+			
+			return 0;	
+		} 
+		else 
+ */
+		
+		
 		if(frame_number < PACKETS_PER_FRAME )
 		{
 			for(i=0;i<80;i++)
 			{
 				current_lepton_array[frame_number][i] = (lepton_frame_packet[2*i+4] << 8 | lepton_frame_packet[2*i+5]);
 			}
+			isFirstTransferFrame = false;
+			resetCount = 0;
 		} else {
 			
-			int j;
-			for(j=0;j<80;j++)
-			{
-				printf("Index:%d, value:%d\n", j, lepton_frame_packet[j]);
-			}
-			
-			pabort("Frame greater than 59");
-			
+			printf("Misaligned packet detected. Pausing.\n");
+			usleep(200000);
+			return -1;			
+		
 		}
 	}
 	
@@ -252,20 +279,36 @@ bool read_lepton_array(int currentIteration)
 	int detected_pixel_count = 0;
 	// Compare current thermal counts against the reference array
 	int i,j;
+	uint16_t minValue = 65535;
+	uint16_t maxValue = 0;
 		
 	for(i=0;i<PACKETS_PER_FRAME;i++)
 	{
 		for(j=0;j<80;j++){
-			if(abs(current_lepton_array[i][j] - lepton_reference_array[i][j]) > max_tc_differential)
+			
+			if(current_lepton_array[i][j] < minValue)
+				minValue = current_lepton_array[i][j];
+			if(current_lepton_array[i][j] > maxValue)
+				maxValue = current_lepton_array[i][j];
+			
+			if(abs(current_lepton_array[i][j] - lepton_reference_array[i][j]) > water_tc_differential)
 			{
 				//printf("C_TC:%d, R_TC:%d, Diff:%d\n", current_lepton_array[i][j], lepton_reference_array[i][j], current_lepton_array[i][j] - lepton_reference_array[i][j]);
 				detected_pixel_count++;
 			}
+			
+/*
+			char msg[24];
+			sprintf(msg, "Max:%d, Min:%d", maxValue, minValue);
+			g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
+*/
 				
 		}
 	}	
 	
-	printf("Pixel Differential: %d\n", detected_pixel_count);
+	//printf("Pixel Differential: %d\n", detected_pixel_count);
+	//printf("Min Value: %d\n", minValue);
+	//printf("Max Value: %d\n", maxValue);
 	
 	return detected_pixel_count >= min_detected_pixel_count;
 }
@@ -288,10 +331,12 @@ void* f_monitor(void *arg)
 			
 			fd = connect_to_lepton();
 			
+/*
 			printf("spi mode: %d\n", mode);
 			printf("bits per word: %d\n", bits);
 			printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
-			
+*/
+			isFirstTransferFrame = true;
 			while(transfer(fd)!=59){}
 			
 			int status_value = -1;
@@ -299,16 +344,20 @@ void* f_monitor(void *arg)
 			if(status_value < 0)
 				printf("Error - Could not close SPI device");
 
-			printf("Lepton Polled: %d\n", currentIteration);
+			//printf("Lepton Polled: %d\n", currentIteration);
 			
-			if(read_lepton_array(currentIteration))
+			if(read_lepton_array(currentIteration)){
+				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+				//set_capture_image_from_current_array(captureImage);
 				pabort("Change Detected");
+			}
+				
 			
-/*
-			// save image file, return filename
-			char* imageName = save_pgm_file();
-			printf("%s created.\n", imageName);
-*/
+			// Update the image if first iteration
+			if(currentIteration == 1)
+				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+				//set_capture_image_from_current_array(captureImage);
+			
 			
 			usleep(50000); // 20 FPS
 			

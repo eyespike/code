@@ -12,6 +12,14 @@ GMainContext *mainc;
 GtkApplication *app_ui;
 GtkLabel *statusLabel;
 GtkButton *monitorButton;
+GtkImage *captureImage;
+
+
+ typedef struct {
+	  GtkEntry *waterDiff;
+	  GtkEntry *fireDiff;
+	  GtkEntry *minPixelCount;
+  } VariableEntries;
 
 pthread_t tid[2];
 bool _active = false;
@@ -20,11 +28,9 @@ bool _active = false;
 // --- Forward Declarations
 //static void toggle_status (GtkWidget *widget, gpointer *data);
 
-static void capture_image (GtkWidget *widget, gpointer *data)
+void set_capture_image_from_current_array(GtkImage *image)
 {
-	int fd = connect_to_lepton();
-	while(transfer(fd)!=59){}
-	close(fd);
+
 	char* imageName = save_pgm_file();
 	
 	// Scale the image up and display it (using ImageMagick commands)
@@ -35,19 +41,40 @@ static void capture_image (GtkWidget *widget, gpointer *data)
 	snprintf(scaleCommand, sizeof scaleCommand, "convert %s -resize 600%% %s", imageName, largeImageName);
 	system(scaleCommand);
 	
-	gtk_image_set_from_file ((GtkImage*)data, largeImageName);
+	gtk_image_set_from_file (image, largeImageName);	
 }
 
-void update_monitor_status_labels(char *labelValue)
+
+static void capture_image (GtkWidget *widget, gpointer *data)
+{
+	int fd = connect_to_lepton();
+	//isFirstTransferFrame = true;
+	while(transfer(fd)!=59){}
+	close(fd);
+	set_capture_image_from_current_array(captureImage);
+}
+
+
+static void set_detect_variables (GtkWidget *widget, VariableEntries *data)
 {
 	
+	water_tc_differential = (int)strtol(gtk_entry_get_text (data->waterDiff), (char **) NULL, 10);
+	fire_tc_differential = (int)strtol(gtk_entry_get_text (data->fireDiff), (char **) NULL, 10);
+	min_detected_pixel_count = (int)strtol(gtk_entry_get_text (data->minPixelCount), (char **) NULL, 10);
+	
+	printf("Water Diff: %d\nFire Diff: %d\nMin Pixel Count: %d\n", water_tc_differential, fire_tc_differential, min_detected_pixel_count);
+}
+
+
+void update_monitor_status_labels(char *labelValue)
+{	
 	if(!_active){
 		if(labelValue == NULL)
 			gtk_label_set_text(statusLabel, "Inactive");
 		else
 			gtk_label_set_text(statusLabel, labelValue);
 		
-		gtk_button_set_label(monitorButton, "Start");
+		gtk_button_set_label(monitorButton, "Monitor");
 	} else {
 		if(labelValue == NULL)
 			gtk_label_set_text(statusLabel, "Monitoring");
@@ -82,7 +109,7 @@ int main (int argc, char *argv[])
   GtkBuilder *builder;
   GObject *window;
   GObject *button;
-  GObject *image;
+  GObject *entry;
   
   gtk_init (&argc, &argv);
 
@@ -99,11 +126,33 @@ int main (int argc, char *argv[])
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
+  
+
+  // Detection Variables
+  VariableEntries detectionEntries;
+  
+  gchar varStr[8];
+  sprintf(varStr, "%d", water_tc_differential);
+  detectionEntries.waterDiff = (GtkEntry*)gtk_builder_get_object (builder, "eWaterTcDiff");
+  gtk_entry_set_text(detectionEntries.waterDiff, varStr);
+   
+  sprintf(varStr, "%d", fire_tc_differential);
+  detectionEntries.fireDiff = (GtkEntry*)gtk_builder_get_object (builder, "eFireTcDiff");
+  gtk_entry_set_text(detectionEntries.fireDiff, varStr);
+    
+  sprintf(varStr, "%d", min_detected_pixel_count);
+  detectionEntries.minPixelCount = (GtkEntry*)gtk_builder_get_object (builder, "eMinPixelCount");
+  gtk_entry_set_text(detectionEntries.minPixelCount, varStr);
+  
+  button = gtk_builder_get_object (builder, "btnSetVariables");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_detect_variables), (gpointer)&detectionEntries);
+  
   // Capture Image
-  image = gtk_builder_get_object (builder, "captureImage");
-  gtk_image_set_from_file ((GtkImage*)image, "no-image.gif");
+  captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
+  gtk_image_set_from_file (captureImage, "no-image.gif");
+  gtk_widget_set_halign ((GtkWidget*)captureImage, GTK_ALIGN_CENTER);
   button = gtk_builder_get_object (builder, "btnCaptureFrame");
-  g_signal_connect (button, "clicked", G_CALLBACK (capture_image), image);
+  g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
   
   // Monitor toggle & status
   statusLabel = (GtkLabel*)gtk_builder_get_object (builder, "statuslabel");

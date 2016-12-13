@@ -16,28 +16,39 @@
 
 
 // --- Constants
-static const int MAX_CYCLES = 240;
+//static const int MAX_CYCLES = 9000; //5 mins
+static const int MAX_CYCLES = 1800; //1 mins
+
 static const int CYCLES_TO_RESET_BASE = 240;
-int water_tc_differential = 50;
-int fire_tc_differential = 400;
-int min_detected_pixel_count = 300;
-static unsigned int lepton_reference_array[80][80];
 
+int water_tc_differential = -35;
+int body_tc_differential = 120;
+int fire_tc_differential = 500;
+int water_min_detected_pc = 300;
+int body_min_detected_pc = 1000;
+int fire_min_detected_pc = 100;
+bool water_tc_diff_is_negative = false;
+static int lepton_reference_array[80][80];
+static int current_lepton_array[80][80];
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+typedef struct {
+	bool water_detected;
+	bool body_detected;
+	bool fire_detected;
+} DetectionResults;
+
 
 static const char *device = "/dev/spidev0.1";
 static uint8_t mode;
 static uint8_t bits = 8;
 static uint32_t speed = 16000000;
 static uint16_t delay;
-bool isFirstTransferFrame;
 static uint16_t resetCount = 0;
 
 #define VOSPI_FRAME_SIZE (164)
 #define PACKETS_PER_FRAME (60)
 uint8_t lepton_frame_packet[VOSPI_FRAME_SIZE];
-static unsigned int current_lepton_array[80][80];
+
 
 bool _monitorActive = false;
 
@@ -162,26 +173,7 @@ int transfer(int fd)
 	{
 		frame_number = lepton_frame_packet[1];
 		
-		//printf("Frame: %d, Is first frame: %d\n", frame_number, isFirstTransferFrame);
-		
-/*		if(!isFirstTransferFrame && frame_number == 0)
-		{
-			printf("Misaligned packet detected. Pausing.\n");
-
- * 			resetCount++;
-			usleep(1000);
 			
-			if(resetCount == 500){
-
-				usleep(750000);
-				return 59;
-			}
-			
-			return 0;	
-		} 
-		else 
- */
-		
 		
 		if(frame_number < PACKETS_PER_FRAME )
 		{
@@ -189,7 +181,6 @@ int transfer(int fd)
 			{
 				current_lepton_array[frame_number][i] = (lepton_frame_packet[2*i+4] << 8 | lepton_frame_packet[2*i+5]);
 			}
-			isFirstTransferFrame = false;
 			resetCount = 0;
 		} else {
 			
@@ -258,9 +249,14 @@ int connect_to_lepton()
 
 
 
-bool read_lepton_array(int currentIteration)
+DetectionResults read_lepton_array(int currentIteration, int referenceArray[80][80], int compareArray[80][80])
 {
-
+	// Initialize the result struct
+	DetectionResults dResults;
+	dResults.water_detected = false;
+	dResults.body_detected = false;
+	dResults.fire_detected = false;
+	
 	// Set base reference array is applicable
 	if(currentIteration == 1)
 	{
@@ -269,55 +265,93 @@ bool read_lepton_array(int currentIteration)
 		for(i=0;i<PACKETS_PER_FRAME;i++)
 		{
 			for(j=0;j<80;j++){
-				lepton_reference_array[i][j] = current_lepton_array[i][j];
+				//lepton_reference_array[i][j] = current_lepton_array[i][j];
+				referenceArray[i][j] = compareArray[i][j];
 			}
 		}	
 		
-		return FALSE;
+		return dResults;
 	}
 	
-	int detected_pixel_count = 0;
 	// Compare current thermal counts against the reference array
+	
+	int water_detected_pixel_count = 0;
+	int body_detected_pixel_count = 0;
+	int fire_detected_pixel_count = 0;
+	
+	int water_detected_total_tc = 0;
+	int body_detected_total_tc = 0;
+	int fire_detected_total_tc = 0;
+
+	
 	int i,j;
-	uint16_t minValue = 65535;
-	uint16_t maxValue = 0;
-		
+	int tc_diff;
+	
+	
 	for(i=0;i<PACKETS_PER_FRAME;i++)
 	{
 		for(j=0;j<80;j++){
 			
-			if(current_lepton_array[i][j] < minValue)
-				minValue = current_lepton_array[i][j];
-			if(current_lepton_array[i][j] > maxValue)
-				maxValue = current_lepton_array[i][j];
-			
-			if(abs(current_lepton_array[i][j] - lepton_reference_array[i][j]) > water_tc_differential)
+			tc_diff = abs(compareArray[i][j] - referenceArray[i][j]);
+						
+			if(water_tc_diff_is_negative && compareArray[i][j] - referenceArray[i][j] < 0 && tc_diff * -1 <= water_tc_differential) // Water diff is negative
 			{
-				//printf("C_TC:%d, R_TC:%d, Diff:%d\n", current_lepton_array[i][j], lepton_reference_array[i][j], current_lepton_array[i][j] - lepton_reference_array[i][j]);
-				detected_pixel_count++;
+				water_detected_pixel_count++;
+				water_detected_total_tc += compareArray[i][j] - referenceArray[i][j];
+			}
+			else if(!water_tc_diff_is_negative && tc_diff >= water_tc_differential && tc_diff < body_tc_differential)  // Water diff not negative
+			{
+				water_detected_pixel_count++;
+				water_detected_total_tc += tc_diff;
+			}
+			else if(tc_diff >= body_tc_differential && tc_diff < fire_tc_differential){
+				body_detected_pixel_count++;
+				body_detected_total_tc += tc_diff;
+			}
+			else if(tc_diff >= fire_tc_differential){
+				fire_detected_pixel_count++;
+				fire_detected_total_tc += tc_diff;
 			}
 			
-/*
-			char msg[24];
-			sprintf(msg, "Max:%d, Min:%d", maxValue, minValue);
-			g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
-*/
-				
+			
 		}
-	}	
+	}
 	
-	//printf("Pixel Differential: %d\n", detected_pixel_count);
-	//printf("Min Value: %d\n", minValue);
-	//printf("Max Value: %d\n", maxValue);
+	if(water_tc_diff_is_negative)
+		dResults.water_detected = water_detected_total_tc < 0 
+				&& water_detected_pixel_count >= water_min_detected_pc
+				&& (int)(water_detected_total_tc  / water_detected_pixel_count) <= water_tc_differential;
+	else
+		dResults.water_detected = water_detected_total_tc > 0 
+				&& water_detected_pixel_count >= water_min_detected_pc
+				&& (int)(water_detected_total_tc  / water_detected_pixel_count) >= water_tc_differential;
 	
-	return detected_pixel_count >= min_detected_pixel_count;
+	dResults.body_detected = body_detected_total_tc > 0 
+			&& body_detected_pixel_count >= body_min_detected_pc
+			&& (int)(body_detected_total_tc  / body_detected_pixel_count) >= body_tc_differential;
+	dResults.fire_detected = fire_detected_total_tc > 0 
+			&& fire_detected_pixel_count >= fire_min_detected_pc
+			&& (int)(fire_detected_total_tc  / fire_detected_pixel_count) > fire_tc_differential;
+
+	
+/*
+	//if(dResults.water_detected)
+	if(water_detected_total_tc < 0)
+		printf("Water pixel count: %d\nWater TC Total: %d\nWater TC Avg: %d\n", water_detected_pixel_count, water_detected_total_tc, (water_detected_total_tc  / water_detected_pixel_count));
+	if(dResults.body_detected)
+		printf("Body TC Avg: %d\n", (body_detected_total_tc  / body_detected_pixel_count));
+	if(dResults.fire_detected)
+		printf("Fire TC Avg: %d\n", (fire_detected_total_tc  / fire_detected_pixel_count));
+*/
+		
+	
+	//return water_detected_pixel_count >= min_detected_pixel_count;
+	return dResults;
 }
-
-
-
 void* f_monitor(void *arg)
 {
 	_monitorActive = true;
+	water_tc_diff_is_negative = water_tc_differential < 0;
 	
 	int currentIteration = 0;
 	int fd;
@@ -330,13 +364,7 @@ void* f_monitor(void *arg)
 		} else {
 			
 			fd = connect_to_lepton();
-			
-/*
-			printf("spi mode: %d\n", mode);
-			printf("bits per word: %d\n", bits);
-			printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
-*/
-			isFirstTransferFrame = true;
+		
 			while(transfer(fd)!=59){}
 			
 			int status_value = -1;
@@ -346,20 +374,54 @@ void* f_monitor(void *arg)
 
 			//printf("Lepton Polled: %d\n", currentIteration);
 			
-			if(read_lepton_array(currentIteration)){
-				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
-				//set_capture_image_from_current_array(captureImage);
-				pabort("Change Detected");
-			}
+		
+			DetectionResults results = read_lepton_array(currentIteration, lepton_reference_array, current_lepton_array);
+			
+			if(results.water_detected){
 				
+				printf("Water detected: %d\n", results.water_detected);
+				printf("Body detected: %d\n", results.body_detected);
+				printf("Fire detected: %d\n", results.fire_detected);
+				
+				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+				pabort("Water Detected");
+				//char *s = "Water Detected!";
+				//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
+			}
+			else if(results.body_detected){
+				
+				printf("Water detected: %d\n", results.water_detected);
+				printf("Body detected: %d\n", results.body_detected);
+				printf("Fire detected: %d\n", results.fire_detected);
+				
+				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+				pabort("Body heat Detected");
+				//char *s = "Body heat Detected!";
+				//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
+			}
+			else if(results.fire_detected){
+				
+				printf("Water detected: %d\n", results.water_detected);
+				printf("Body detected: %d\n", results.body_detected);
+				printf("Fire detected: %d\n", results.fire_detected);
+				
+				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+				pabort("Fire Detected");
+				//char *s = "Fire Detected!";
+				//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
+			}
 			
 			// Update the image if first iteration
 			if(currentIteration == 1)
 				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
-				//set_capture_image_from_current_array(captureImage);
+			
+			usleep(24000); // 30 FPS
+			//usleep(50000); // 20 FPS
+			//usleep(62500); // 16 FPS   ##### Many more misaligned packets
 			
 			
-			usleep(50000); // 20 FPS
+			if(currentIteration % 30 == 0)
+				printf("Second %d\n", currentIteration / 30);
 			
 		}
 	}
@@ -372,5 +434,63 @@ void* f_monitor(void *arg)
 	
 	// Exit the thread
 	pthread_exit(NULL);		
+}
+
+
+
+
+int get_tc_diff_from_array(int min_diff, int min_pixel_count, int referenceArray[80][80], int compareArray[80][80])
+{
+
+	int detected_pixel_count = 0;
+	int total_tc_above_min = 0;
+	
+	// Compare array values
+	int i,j;
+			
+	for(i=0;i<PACKETS_PER_FRAME;i++)
+	{
+		for(j=0;j<80;j++){
+			if(abs(compareArray[i][j] - referenceArray[i][j]) > min_diff)
+			{
+				detected_pixel_count++;
+				total_tc_above_min += compareArray[i][j] - referenceArray[i][j];
+				//printf("Diff: %d\n", compareArray[i][j] - referenceArray[i][j]);
+			}
+		}
+	}	
+
+	//printf("Pixel Count: %d\n", detected_pixel_count);
+	
+	if(detected_pixel_count >= min_pixel_count)
+		return (int) total_tc_above_min / detected_pixel_count;
+	
+	return 0;
+}
+
+
+bool set_reference_frame()
+{
+	int fd;
+	fd = connect_to_lepton();
+	while(transfer(fd)!=59){}
+	int status_value = -1;
+	status_value = close(fd);
+
+	// read array into the reference array
+	read_lepton_array(1,lepton_reference_array, current_lepton_array);
+	
+	return status_value > -1;
+}
+
+int get_tc_difference(int min_diff, int min_pixel_count)
+{
+	int fd;
+	fd = connect_to_lepton();
+	while(transfer(fd)!=59){}
+	int status_value = -1;
+	status_value = close(fd);
+	
+	return get_tc_diff_from_array(min_diff, min_pixel_count, lepton_reference_array, current_lepton_array);
 }
 

@@ -20,15 +20,19 @@ extern "C" {
 
 extern bool _monitorActive;
 extern int water_tc_differential;
+extern int body_tc_differential;
 extern int fire_tc_differential;
-extern int min_detected_pixel_count;
-extern bool isFirstTransferFrame;
+extern int water_min_detected_pc;
+extern int body_min_detected_pc;
+extern int fire_min_detected_pc;
 
 char* save_pgm_file(void);
 int connect_to_lepton();
 int transfer(int fd);
 void* f_monitor(void *arg);
 
+bool set_reference_frame();
+int get_tc_difference(int min_diff, int min_pixel_count);
 
 #ifdef __cplusplus
 }

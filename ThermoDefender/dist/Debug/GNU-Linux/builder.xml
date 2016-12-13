@@ -1,5 +1,5 @@
 <interface>
-  <object id="window" class="GtkWindow">
+  <object id="mainWindow" class="GtkWindow">
     <property name="visible">True</property>
     <property name="title">Thermo Defender</property>
     <property name="border-width">20</property>
@@ -18,9 +18,9 @@
           </packing>
         </child>
 		<child>
-          <object id="lblFireTcDiff" class="GtkLabel">
+          <object id="lblBodyTcDiff" class="GtkLabel">
             <property name="visible">True</property>
-            <property name="label">Fire Temp Diff</property>
+            <property name="label">Body Temp Diff</property>
           </object>
           <packing>
             <property name="left-attach">1</property>
@@ -28,15 +28,16 @@
           </packing>
         </child>
 		<child>
-          <object id="lblPixelCount" class="GtkLabel">
+          <object id="lblFireTcDiff" class="GtkLabel">
             <property name="visible">True</property>
-            <property name="label">Min Pixel Count</property>
+            <property name="label">Fire Temp Diff</property>
           </object>
           <packing>
             <property name="left-attach">2</property>
             <property name="top-attach">0</property>
           </packing>
         </child>
+		
 		
 		<child>
 		  <object class="GtkBox">
@@ -54,11 +55,11 @@
           </packing>
         </child>
 		<child>
-          <object class="GtkBox">
+		  <object class="GtkBox">
 				<property name="visible">True</property>
 				<property name="border-width">5</property>
 				<child>
-					<object id="eFireTcDiff" class="GtkEntry">
+					<object id="eBodyTcDiff" class="GtkEntry">
 						<property name="visible">True</property>
 					</object>
 				</child>
@@ -73,7 +74,7 @@
 				<property name="visible">True</property>
 				<property name="border-width">5</property>
 				<child>
-					<object id="eMinPixelCount" class="GtkEntry">
+					<object id="eFireTcDiff" class="GtkEntry">
 						<property name="visible">True</property>
 					</object>
 				</child>
@@ -83,15 +84,131 @@
             <property name="top-attach">1</property>
           </packing>
         </child>
+		
+		
+		<child>
+          <object id="lblWaterPC" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Water Min Count</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">2</property>
+          </packing>
+        </child>
+		<child>
+          <object id="lblBodyPC" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Body Min Count</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">2</property>
+          </packing>
+        </child>
+		<child>
+          <object id="lblFirePC" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Fire Min Count</property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">2</property>
+          </packing>
+        </child>
+		
+		
+		<child>
+		  <object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				<child>
+					<object id="eWaterPC" class="GtkEntry">
+						<property name="visible">True</property>
+					</object>
+				</child>
+			</object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+		<child>
+		  <object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				<child>
+					<object id="eBodyPC" class="GtkEntry">
+						<property name="visible">True</property>
+					</object>
+				</child>
+			</object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+		<child>
+          <object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				<child>
+					<object id="eFirePC" class="GtkEntry">
+						<property name="visible">True</property>
+					</object>
+				</child>
+			</object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+		
+		
+		
 		<child>
           <object id="btnSetVariables" class="GtkButton">
             <property name="visible">True</property>
-            <property name="label">Set</property>
+            <property name="label">Set Monitor Values</property>
 			<property name="border-width">5</property>
           </object>
           <packing>
             <property name="left-attach">3</property>
             <property name="top-attach">1</property>
+          </packing>
+        </child>
+		
+		<child>
+          <object id="btnCalibrateWater" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Calibrate Water</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+		<child>
+          <object id="btnCalibrateBody" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Calibrate Body</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+		<child>
+          <object id="btnCalibrateFire" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Calibrate Fire</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">4</property>
           </packing>
         </child>
 		
@@ -104,7 +221,7 @@
 		  </object>
 		  <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">2</property>
+            <property name="top-attach">5</property>
 			<property name="width">4</property>
           </packing>
 		</child>
@@ -118,7 +235,7 @@
           </object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">3</property>
+            <property name="top-attach">6</property>
           </packing>
         </child>
 		<child>
@@ -129,7 +246,7 @@
           </object>
           <packing>
             <property name="left-attach">1</property>
-            <property name="top-attach">3</property>
+            <property name="top-attach">6</property>
           </packing>
         </child>
 		<child>
@@ -139,9 +256,10 @@
           </object>
           <packing>
             <property name="left-attach">2</property>
-            <property name="top-attach">3</property>
+            <property name="top-attach">6</property>
           </packing>
         </child>
+		
 		<child>
 			<object class="GtkBox">
 				<property name="visible">True</property>
@@ -156,7 +274,7 @@
 			</object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">4</property>
+            <property name="top-attach">7</property>
 			<property name="width">4</property>
           </packing>
         </child>
@@ -170,7 +288,7 @@
           </object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">5</property>
+            <property name="top-attach">8</property>
             <property name="width">1</property>
 			
           </packing>

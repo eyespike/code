@@ -1,0 +1,77 @@
+<interface>
+  <object id="window" class="GtkWindow">
+    <property name="visible">True</property>
+    <property name="title">Thermo Defender</property>
+    <property name="border-width">20</property>
+	<child>
+      <object id="grid" class="GtkGrid">
+        <property name="visible">True</property>
+        <child>
+          <object id="btnCaptureFrame" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Capture Single Frame</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+		<child>
+			<object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				
+				<child>
+                  <object class="GtkImage" id="captureImage">
+                    <property name="visible">True</property>
+                    
+                  </object>
+                </child>
+				
+			</object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+		<child>
+          <object id="btnStartMonitor" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Monitor</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object id="statuslabel" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Inactive</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object id="quit" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Quit</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">2</property>
+            <property name="width">2</property>
+			
+          </packing>
+        </child>
+      </object>
+      <packing>
+      </packing>
+    </child>
+  </object>
+</interface>

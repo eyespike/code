@@ -1,4 +1,4 @@
-build/Debug/GNU-Linux/main.o: main.c /usr/include/gtk-3.0/gtk/gtk.h \
+build/Debug/GNU-Linux/tdio.o: tdio.c /usr/include/gtk-3.0/gtk/gtk.h \
  /usr/include/gtk-3.0/gdk/gdk.h /usr/include/gtk-3.0/gdk/gdkconfig.h \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
@@ -544,7 +544,7 @@ build/Debug/GNU-Linux/main.o: main.c /usr/include/gtk-3.0/gtk/gtk.h \
  /usr/include/gtk-3.0/gtk/deprecated/gtkvpaned.h \
  /usr/include/gtk-3.0/gtk/deprecated/gtkvscale.h \
  /usr/include/gtk-3.0/gtk/deprecated/gtkvscrollbar.h \
- /usr/include/gtk-3.0/gtk/deprecated/gtkvseparator.h monitor.h tdio.h
+ /usr/include/gtk-3.0/gtk/deprecated/gtkvseparator.h
 
 /usr/include/gtk-3.0/gtk/gtk.h:
 
@@ -1707,7 +1707,3 @@ build/Debug/GNU-Linux/main.o: main.c /usr/include/gtk-3.0/gtk/gtk.h \
 /usr/include/gtk-3.0/gtk/deprecated/gtkvscrollbar.h:
 
 /usr/include/gtk-3.0/gtk/deprecated/gtkvseparator.h:
-
-monitor.h:
-
-tdio.h:

@@ -1,3 +1,4 @@
+/*
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -304,12 +305,7 @@ void* f_monitor(void *arg)
 			if(read_lepton_array(currentIteration))
 				pabort("Change Detected");
 			
-/*
-			// save image file, return filename
-			char* imageName = save_pgm_file();
-			printf("%s created.\n", imageName);
-*/
-			
+		
 			usleep(50000); // 20 FPS
 			
 		}
@@ -325,3 +321,4 @@ void* f_monitor(void *arg)
 	pthread_exit(NULL);		
 }
 
+*/

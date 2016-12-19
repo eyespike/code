@@ -6,6 +6,7 @@
 #include<stdlib.h>
 #include<unistd.h>
 #include "monitor.h"
+#include "tdio.h"
 
 // --- UI Global Variables
 GMainContext *mainc;
@@ -204,8 +205,8 @@ int main (int argc, char *argv[])
   GObject *button;
   GObject *entry;
   
-
-  
+  // Initialize the IO
+  initializeGpio();
   
   //--- Construct a GtkBuilder instance and load our UI description
   gtk_init (&argc, &argv);
@@ -260,6 +261,16 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "btnCalibrateFire");
   g_signal_connect (button, "clicked", G_CALLBACK (calibrate_fire), (gpointer)&detectionEntries);
+  
+  
+  //--- I/O buttons
+  button = gtk_builder_get_object (builder, "btnGpioOn");
+  g_signal_connect (button, "clicked", G_CALLBACK (gpio_testing), (gpointer)true);
+  
+/*
+  button = gtk_builder_get_object (builder, "btnGpioOff");
+  g_signal_connect (button, "clicked", G_CALLBACK (gpio_testing), (gpointer)false);
+*/
   
   
   //--- Capture Image

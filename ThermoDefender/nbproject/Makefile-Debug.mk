@@ -41,7 +41,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` 
+CFLAGS=`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` -lwiringPi 
 
 # CC Compiler Flags
 CCFLAGS=

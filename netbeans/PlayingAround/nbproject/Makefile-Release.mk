@@ -35,11 +35,13 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/animation.o \
 	${OBJECTDIR}/examples.o \
 	${OBJECTDIR}/flir.o \
 	${OBJECTDIR}/gtk.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/monitor.o \
+	${OBJECTDIR}/qdbmp.o \
 	${OBJECTDIR}/thread_play.o
 
 
@@ -67,6 +69,11 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/playingaround.exe: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/playingaround ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/animation.o: animation.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/animation.o animation.c
+
 ${OBJECTDIR}/examples.o: examples.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -91,6 +98,11 @@ ${OBJECTDIR}/monitor.o: monitor.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/monitor.o monitor.c
+
+${OBJECTDIR}/qdbmp.o: qdbmp.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/qdbmp.o qdbmp.c
 
 ${OBJECTDIR}/thread_play.o: thread_play.c
 	${MKDIR} -p ${OBJECTDIR}

@@ -68,7 +68,7 @@ da_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 	printf("Depth: %d\n", BMP_GetDepth(bmp));
 	//printf("BMP array length: %d\n", sizeof((UCHAR*)bmp->Data));
 	
-	UCHAR* bmp_data = &bmp->Data;
+	UCHAR* bmp_data = bmp->Data;
 	//BMP_Free(bmp);
 /*
 	pix = gdk_pixbuf_new_from_bytes (bmp->Data,

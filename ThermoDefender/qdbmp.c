@@ -216,7 +216,7 @@ void BMP_Free( BMP* bmp )
 void pix_destroy(guchar *pixels, gpointer data)
 {
 
-	BMP_Free((BMP*)pixels);
+	BMP_Free((BMP*)data);
 	
 }
 

@@ -16,25 +16,12 @@ BMP* negative()
 
 	
 	/* Read an image file */
-	bmp = BMP_ReadFile( "howdy.bmp" );
+	bmp = BMP_ReadFile( "no-image.bmp" );
 	BMP_CHECK_ERROR( stdout, -1 );
 
 	/* Get image's dimensions */
 	width = BMP_GetWidth( bmp );
 	height = BMP_GetHeight( bmp );
-
-	/* Iterate through all the image's pixels */
-	for ( x = 0 ; x < width ; ++x )
-	{
-		for ( y = 0 ; y < height ; ++y )
-		{
-			/* Get pixel's RGB values */
-			BMP_GetPixelRGB( bmp, x, y, &r, &g, &b );
-
-			/* Invert RGB values */
-			BMP_SetPixelRGB( bmp, x, y, 255 - r, 255 - g, 255 - b );
-		}
-	}
 
 	/* Save result */
 	//BMP_WriteFile( bmp, "negative.bmp" );
@@ -48,60 +35,36 @@ BMP* negative()
 }
 
 
+/*
 void pix_destroy(guchar *pixels, gpointer data)
 {
 
 	BMP_Free((BMP*)pixels);
 	
 }
+*/
 
 
-static gboolean
-da_expose (GtkWidget *da, GdkEvent *event, gpointer data)
-{
-    (void)event; (void)data;
+static gboolean da_expose (GtkWidget *da, GdkEvent *event, gpointer data)
+{	
+
     GdkPixbuf *pix;
-    GError *err = NULL;
-    /* Create pixbuf */
-    pix = gdk_pixbuf_new_from_file("no-image.gif", &err);
-	BMP* bmp = negative();
-	printf("Depth: %d\n", BMP_GetDepth(bmp));
-	//printf("BMP array length: %d\n", sizeof((UCHAR*)bmp->Data));
-	
-	UCHAR* bmp_data = bmp->Data;
-	//BMP_Free(bmp);
-/*
-	pix = gdk_pixbuf_new_from_bytes (bmp->Data,
+	//BMP *bmp = negative();
+	BMP *bmp = BMP_ReadFile( "no-image.bmp" );
+ 
+	pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
 			GDK_COLORSPACE_RGB,
 			FALSE,
-			BMP_GetDepth(bmp),
-			480,
-			360,
-			1440);
-*/
-	
-/*
-	pix = gdk_pixbuf_new_from_data((guchar)bmp,
-			GDK_COLORSPACE_RGB,
-			FALSE,
-			BMP_GetDepth(bmp),
-			480,
-			360,
-			1440,
+			8,480,360,480,
 			pix_destroy,
-			NULL
-			);
-*/
-	if(err)
-	{
-		printf("Error : %s\n", err->message);
-		g_error_free(err);
-		return FALSE;
-	}
+			NULL);
+
+	printf("PixBuf success.");
+
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
     //    cr = gdk_cairo_create (da->window);
-    gdk_cairo_set_source_pixbuf(cr, pix, 0, 0);
+    gdk_cairo_set_source_pixbuf(cr, pix, 20, 20);
     cairo_paint(cr);
     //    cairo_fill (cr);
     cairo_destroy (cr);
@@ -109,6 +72,9 @@ da_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 }
 
 int main ( int argc, char **argv) {
+
+	//load_buf();
+	
     GtkWidget *window;
     GtkWidget *canvas;
     gtk_init (&argc , &argv);

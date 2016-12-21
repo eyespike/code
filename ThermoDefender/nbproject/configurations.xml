@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>main.h</itemPath>
       <itemPath>monitor.h</itemPath>
+      <itemPath>qdbmp.h</itemPath>
       <itemPath>tdio.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -18,6 +19,7 @@
                    projectFiles="true">
       <itemPath>main.c</itemPath>
       <itemPath>monitor.c</itemPath>
+      <itemPath>qdbmp.c</itemPath>
       <itemPath>tdio.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -55,6 +57,10 @@
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="qdbmp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="qdbmp.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="tdio.h" ex="false" tool="3" flavor2="0">
@@ -89,6 +95,10 @@
       <item path="monitor.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="qdbmp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="qdbmp.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>

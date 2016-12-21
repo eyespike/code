@@ -7,6 +7,7 @@
 #include<unistd.h>
 #include "monitor.h"
 #include "tdio.h"
+#include "qdbmp.h"
 
 // --- UI Global Variables
 GMainContext *mainc;
@@ -15,6 +16,7 @@ GtkWindow *main_window;
 GtkLabel *statusLabel;
 GtkButton *monitorButton;
 GtkImage *captureImage;
+GtkDrawingArea *videoArea;
 
 
  typedef struct {
@@ -55,6 +57,53 @@ static void capture_image (GtkWidget *widget, gpointer *data)
 	while(transfer(fd)!=59){}
 	close(fd);
 	set_capture_image_from_current_array(captureImage);
+}
+
+
+//gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
+void video_area_expose (GtkWidget *da, BMP *bmp)
+{
+	
+	//(void)event; void(data);
+	GdkPixbuf *pix;
+	GError *err = NULL;
+		
+/*
+	if(data == NULL){
+		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
+	}
+*/
+	//else
+	//	pix = gdk_pixbuf_new_from_file ("capture.bmp", &err);
+		
+	//else
+	//{
+		//
+		//UCHAR *pixData = (UCHAR*)data;
+		
+		//BMP *bmp = (BMP*)data;
+		//BMP *bmp = BMP_ReadFile( "capture.bmp" );
+		
+		//UCHAR *pixels = (UCHAR*)data;
+		
+		pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
+			GDK_COLORSPACE_RGB,
+			FALSE,
+			8,80,60,80,
+			pix_destroy,
+			bmp);
+	//}
+
+    cairo_t *cr;
+    cr = gdk_cairo_create (gtk_widget_get_window(da));
+    //    cr = gdk_cairo_create (da->window);
+    gdk_cairo_set_source_pixbuf(cr, pix, 0, 10);
+    cairo_paint(cr);
+    //    cairo_fill (cr);
+    cairo_destroy (cr);
+	
+	BMP_Free(bmp);
+	//return TRUE;
 }
 
 
@@ -158,8 +207,6 @@ static void calibrate_fire (GtkWidget *widget, VariableEntries *data)
 }
 
 
-
-
 void update_monitor_status_labels(char *labelValue)
 {	
 	if(!_active){
@@ -204,6 +251,8 @@ int main (int argc, char *argv[])
   GObject *window;
   GObject *button;
   GObject *entry;
+  GObject *grid;
+  
   
   // Initialize the IO
   initializeGpio();
@@ -220,6 +269,11 @@ int main (int argc, char *argv[])
   window = gtk_builder_get_object (builder, "mainWindow");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
   main_window = (GtkWindow*)window;
+  //gtk_window_fullscreen(window);
+  
+  grid = gtk_builder_get_object (builder, "grid");
+  gtk_widget_set_halign((GtkWidget*)grid, GTK_ALIGN_CENTER);
+  gtk_widget_set_valign((GtkWidget*)grid, GTK_ALIGN_CENTER);
   
   //--- Detection Variables
   VariableEntries detectionEntries;
@@ -270,11 +324,6 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "btnGpio16");
   g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_16), (gpointer)true);
   
-/*
-  button = gtk_builder_get_object (builder, "btnGpioOff");
-  g_signal_connect (button, "clicked", G_CALLBACK (gpio_testing), (gpointer)false);
-*/
-  
   
   //--- Capture Image
   captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
@@ -283,6 +332,11 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "btnCaptureFrame");
   g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
   
+  
+  // --- Video Area
+  videoArea = (GtkDrawingArea*)gtk_builder_get_object (builder, "videoArea");
+  gtk_widget_set_size_request ((GtkWidget*)videoArea, 500, 380);
+  //g_signal_connect (videoArea, "draw", (GCallback) video_area_expose, NULL);
   
   //--- Monitor toggle & status
   statusLabel = (GtkLabel*)gtk_builder_get_object (builder, "statuslabel");

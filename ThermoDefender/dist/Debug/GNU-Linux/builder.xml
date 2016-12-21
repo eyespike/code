@@ -275,7 +275,25 @@
           <packing>
             <property name="left-attach">0</property>
             <property name="top-attach">7</property>
-			<property name="width">4</property>
+			<property name="width">3</property>
+          </packing>
+        </child>
+		<child>
+			<object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				
+				<child>
+                  <object class="GtkDrawingArea" id="videoArea">
+                    <property name="visible">True</property>
+                    
+                  </object>
+                </child>				
+			</object>
+          <packing>
+            <property name="left-attach">3</property>
+            <property name="top-attach">7</property>
+			<property name="width">1</property>
           </packing>
         </child>
 		
@@ -307,20 +325,6 @@
           </packing>
         </child>
 		
-		
-		<!--<child>
-          <object id="btnGpioOff" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Off</property>
-			<property name="border-width">5</property>
-          </object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">8</property>
-            <property name="width">1</property>
-			
-          </packing>
-        </child>-->
 		
 		
         <child>

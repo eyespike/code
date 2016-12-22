@@ -20,7 +20,8 @@ extern "C" {
 
 	
 void initializeGpio();	
-int gpio_testing(GtkWidget *widget, bool *turnOn);
+int toggle_gpio_12(GtkWidget *widget, gpointer *data);
+int toggle_gpio_16(GtkWidget *widget, gpointer *data);
 
 
 

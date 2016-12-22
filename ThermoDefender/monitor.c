@@ -492,7 +492,8 @@ void* f_monitor(void *arg)
 				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 			}
 			
-			if(currentIteration % 15 ==0){
+			//if(currentIteration % 15 ==0){
+			if(currentIteration == 2){
 				que_video_frame(current_lepton_array, results.minValue, results.maxValue);
 			}
 

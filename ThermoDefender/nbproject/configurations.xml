@@ -44,7 +44,7 @@
       </toolsSet>
       <compileType>
         <cTool>
-          <commandLine>`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` -lwiringPi</commandLine>
+          <commandLine>`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` `pkg-config --cflags opencv` `pkg-config --libs opencv` -lwiringPi</commandLine>
         </cTool>
       </compileType>
       <item path="builder.xml" ex="false" tool="3" flavor2="0">

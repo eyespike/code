@@ -5,6 +5,19 @@
 #include<pthread.h>
 #include<stdlib.h>
 #include<unistd.h>
+//#include <opencv/cv.h>
+//#include <opencv/cxcore.h>
+#include <opencv2/core/core_c.h>
+
+
+
+/*
+#include "cxtypes.h"
+#include "cv.h"
+#include "highgui.h"
+#include "cvaux.h"
+#include "cxmisc.h"
+*/
 #include "monitor.h"
 #include "tdio.h"
 #include "qdbmp.h"
@@ -89,7 +102,7 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 		pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
 			GDK_COLORSPACE_RGB,
 			FALSE,
-			8,80,60,80,
+			8,80,60,240,
 			pix_destroy,
 			bmp);
 	//}

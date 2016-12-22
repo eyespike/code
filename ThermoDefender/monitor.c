@@ -12,7 +12,7 @@
 #include <linux/spi/spidev.h>
 #include <limits.h>
 #include "main.h"
-#include "qdbmp.h"
+//#include "qdbmp.h"
 
 
 // --- Constants
@@ -77,6 +77,7 @@ gboolean set_capture_image(gpointer data){
 	return FALSE;
 }
 
+/*
 static int currentIndexShift = 0;
 static bool creatingImage = false;
 
@@ -147,6 +148,7 @@ static void que_video_frame(int tcArray[60][80], int minValue, int maxValue)
 		g_main_context_invoke(mainc, set_video_frame, (gpointer)bmp);
 	}
 }
+*/
 
 static void pabort(const char *s)
 {
@@ -493,9 +495,9 @@ void* f_monitor(void *arg)
 			}
 			
 			//if(currentIteration % 15 ==0){
-			if(currentIteration == 2){
-				que_video_frame(current_lepton_array, results.minValue, results.maxValue);
-			}
+			//if(currentIteration == 2){
+			//	que_video_frame(current_lepton_array, results.minValue, results.maxValue);
+			//}
 
 			usleep(24000); // 30 FPS
 			//usleep(50000); // 20 FPS
@@ -519,7 +521,8 @@ void* f_monitor(void *arg)
 }
 
 
-
+/*********************************** Calibration Methods **********************************/
+// <editor-fold>
 
 int get_tc_diff_from_array(int min_diff, int min_pixel_count, int referenceArray[60][80], int compareArray[60][80])
 {
@@ -576,3 +579,4 @@ int get_tc_difference(int min_diff, int min_pixel_count)
 	return get_tc_diff_from_array(min_diff, min_pixel_count, lepton_reference_array, current_lepton_array);
 }
 
+// </editor-fold>

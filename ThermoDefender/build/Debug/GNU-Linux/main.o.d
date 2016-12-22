@@ -544,8 +544,7 @@ build/Debug/GNU-Linux/main.o: main.c /usr/include/gtk-3.0/gtk/gtk.h \
  /usr/include/gtk-3.0/gtk/deprecated/gtkvpaned.h \
  /usr/include/gtk-3.0/gtk/deprecated/gtkvscale.h \
  /usr/include/gtk-3.0/gtk/deprecated/gtkvscrollbar.h \
- /usr/include/gtk-3.0/gtk/deprecated/gtkvseparator.h monitor.h tdio.h \
- qdbmp.h
+ /usr/include/gtk-3.0/gtk/deprecated/gtkvseparator.h monitor.h tdio.h
 
 /usr/include/gtk-3.0/gtk/gtk.h:
 
@@ -1712,5 +1711,3 @@ build/Debug/GNU-Linux/main.o: main.c /usr/include/gtk-3.0/gtk/gtk.h \
 monitor.h:
 
 tdio.h:
-
-qdbmp.h:

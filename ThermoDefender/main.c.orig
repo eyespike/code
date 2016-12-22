@@ -40,6 +40,8 @@ GtkDrawingArea *videoArea;
 	GtkEntry *minFirePC;
 } VariableEntries;
 
+static VariableEntries vEntries;
+
 pthread_t tid[2];
 bool _active = false;
 
@@ -47,31 +49,9 @@ bool _active = false;
 // --- Forward Declarations
 //static void toggle_status (GtkWidget *widget, gpointer *data);
 
-void set_capture_image_from_current_array(GtkImage *image)
-{
-	char* imageName = save_pgm_file();
-	
-	// Scale the image up and display it (using ImageMagick commands)
-	char largeImageName[34];
-	snprintf(largeImageName, sizeof largeImageName, "l_%s", imageName);
-	
-	char scaleCommand[100];
-	snprintf(scaleCommand, sizeof scaleCommand, "convert %s -resize 600%% %s", imageName, largeImageName);
-	system(scaleCommand);
-	
-	gtk_image_set_from_file (image, largeImageName);	
-}
 
 
-static void capture_image (GtkWidget *widget, gpointer *data)
-{
-	int fd = connect_to_lepton();
-	while(transfer(fd)!=59){}
-	close(fd);
-	set_capture_image_from_current_array(captureImage);
-}
-
-
+/*
 //gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 void video_area_expose (GtkWidget *da, BMP *bmp)
 {
@@ -413,11 +393,43 @@ int main (int argc, char *argv[])
   gtk_widget_set_valign((GtkWidget*)grid, GTK_ALIGN_CENTER);
   
     
-  button = gtk_builder_get_object (builder, "btnGpioOn");
-  g_signal_connect (button, "clicked", G_CALLBACK (gpio_testing), (gpointer)true);
+<<<<<<< 21beaf29259f72a04b910f3500db5776cd8b7897
+  sprintf(varStr, "%d", water_min_detected_pc);
+  detectionEntries.minWaterPC = (GtkEntry*)gtk_builder_get_object (builder, "eWaterPC");
+  gtk_entry_set_text(detectionEntries.minWaterPC, varStr);
+  
+  sprintf(varStr, "%d", body_min_detected_pc);
+  detectionEntries.minBodyPC = (GtkEntry*)gtk_builder_get_object (builder, "eBodyPC");
+  gtk_entry_set_text(detectionEntries.minBodyPC, varStr);
+  
+  sprintf(varStr, "%d", fire_min_detected_pc);
+  detectionEntries.minFirePC = (GtkEntry*)gtk_builder_get_object (builder, "eFirePC");
+  gtk_entry_set_text(detectionEntries.minFirePC, varStr);
+  
+  button = gtk_builder_get_object (builder, "btnSetVariables");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_detect_variables), (gpointer)&detectionEntries);
+  
+  //--- Calibrate Variables
+  button = gtk_builder_get_object (builder, "btnCalibrateWater");
+  g_signal_connect (button, "clicked", G_CALLBACK (calibrate_water), (gpointer)&detectionEntries);
+  
+  button = gtk_builder_get_object (builder, "btnCalibrateBody");
+  g_signal_connect (button, "clicked", G_CALLBACK (calibrate_body), (gpointer)&detectionEntries);
+  
+  button = gtk_builder_get_object (builder, "btnCalibrateFire");
+  g_signal_connect (button, "clicked", G_CALLBACK (calibrate_fire), (gpointer)&detectionEntries);
+  
+  
+  //--- I/O buttons
+  button = gtk_builder_get_object (builder, "btnGpio12");
+  g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_12), (gpointer)true);
   
   button = gtk_builder_get_object (builder, "btnGpio16");
   g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_16), (gpointer)true);
+  
+  
+=======
+>>>>>>> Moved the calibration and settings to a dialog window.
   //--- Capture Image
   captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
   gtk_image_set_from_file (captureImage, "no-image.gif");

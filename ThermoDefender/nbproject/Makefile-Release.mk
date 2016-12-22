@@ -37,7 +37,6 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/monitor.o \
-	${OBJECTDIR}/qdbmp.o \
 	${OBJECTDIR}/tdio.o
 
 
@@ -74,11 +73,6 @@ ${OBJECTDIR}/monitor.o: monitor.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/monitor.o monitor.c
-
-${OBJECTDIR}/qdbmp.o: qdbmp.c
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/qdbmp.o qdbmp.c
 
 ${OBJECTDIR}/tdio.o: tdio.c
 	${MKDIR} -p ${OBJECTDIR}

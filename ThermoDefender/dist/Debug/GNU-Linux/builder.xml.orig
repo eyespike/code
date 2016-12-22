@@ -7,7 +7,7 @@
       <object id="grid" class="GtkGrid">
         <property name="visible">True</property>
         
-		<child>
+	<!--	<child>
           <object id="lblWaterTcDiff" class="GtkLabel">
             <property name="visible">True</property>
             <property name="label">Water Temp Diff</property>
@@ -226,6 +226,7 @@
           </packing>
 		</child>
 		
+		-->
 		
 		<child>
           <object id="btnCaptureFrame" class="GtkButton">
@@ -235,7 +236,7 @@
           </object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">6</property>
+            <property name="top-attach">0</property>
           </packing>
         </child>
 		<child>
@@ -246,7 +247,7 @@
           </object>
           <packing>
             <property name="left-attach">1</property>
-            <property name="top-attach">6</property>
+            <property name="top-attach">0</property>
           </packing>
         </child>
 		<child>
@@ -256,7 +257,7 @@
           </object>
           <packing>
             <property name="left-attach">2</property>
-            <property name="top-attach">6</property>
+            <property name="top-attach">0</property>
           </packing>
         </child>
 		
@@ -274,7 +275,7 @@
 			</object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">7</property>
+            <property name="top-attach">1</property>
 			<property name="width">3</property>
           </packing>
         </child>
@@ -292,20 +293,39 @@
 			</object>
           <packing>
             <property name="left-attach">3</property>
-            <property name="top-attach">7</property>
+            <property name="top-attach">1</property>
 			<property name="width">1</property>
           </packing>
         </child>
 		
         
 		<child>
-          <object id="btnGpioOn" class="GtkButton">
+<<<<<<< 21beaf29259f72a04b910f3500db5776cd8b7897
+          <object id="btnGpio12" class="GtkButton">
             <property name="visible">True</property>
-            <property name="label">Toggle LED</property>
+            <property name="label">Toggle GPIO 12</property>
+=======
+          <object id="btnShowSettings" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Settings</property>
+>>>>>>> Moved the calibration and settings to a dialog window.
 			<property name="border-width">5</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
+            <property name="top-attach">2</property>
+            <property name="width">1</property>
+			
+          </packing>
+        </child>
+		<child>
+          <object id="btnGpio16" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Toggle GPIO 16</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
             <property name="top-attach">8</property>
             <property name="width">1</property>
 			
@@ -321,8 +341,8 @@
 			<property name="border-width">5</property>
           </object>
           <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">8</property>
+            <property name="left-attach">1</property>
+            <property name="top-attach">2</property>
             <property name="width">1</property>
 			
           </packing>

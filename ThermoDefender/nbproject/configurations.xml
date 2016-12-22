@@ -6,7 +6,6 @@
                    projectFiles="true">
       <itemPath>main.h</itemPath>
       <itemPath>monitor.h</itemPath>
-      <itemPath>qdbmp.h</itemPath>
       <itemPath>tdio.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -19,7 +18,6 @@
                    projectFiles="true">
       <itemPath>main.c</itemPath>
       <itemPath>monitor.c</itemPath>
-      <itemPath>qdbmp.c</itemPath>
       <itemPath>tdio.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -44,7 +42,7 @@
       </toolsSet>
       <compileType>
         <cTool>
-          <commandLine>`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` `pkg-config --cflags opencv` `pkg-config --libs opencv` -lwiringPi</commandLine>
+          <commandLine>`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`  -lwiringPi</commandLine>
         </cTool>
       </compileType>
       <item path="builder.xml" ex="false" tool="3" flavor2="0">
@@ -56,10 +54,6 @@
       <item path="monitor.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="qdbmp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="qdbmp.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -95,10 +89,6 @@
       <item path="monitor.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="qdbmp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="qdbmp.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>

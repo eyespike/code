@@ -37,12 +37,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/monitor.o \
-	${OBJECTDIR}/qdbmp.o \
 	${OBJECTDIR}/tdio.o
 
 
 # C Compiler Flags
-CFLAGS=`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` `pkg-config --cflags opencv` `pkg-config --libs opencv` -lwiringPi 
+CFLAGS=`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`  -lwiringPi 
 
 # CC Compiler Flags
 CCFLAGS=
@@ -74,11 +73,6 @@ ${OBJECTDIR}/monitor.o: monitor.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/monitor.o monitor.c
-
-${OBJECTDIR}/qdbmp.o: qdbmp.c
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/qdbmp.o qdbmp.c
 
 ${OBJECTDIR}/tdio.o: tdio.c
 	${MKDIR} -p ${OBJECTDIR}

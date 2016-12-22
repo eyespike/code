@@ -1,10 +1,10 @@
 <interface>
-  <object id="mainWindow" class="GtkWindow">
+  <object id="settingsWindow" class="GtkWindow">
     <property name="visible">True</property>
-    <property name="title">Thermo Defender</property>
+    <property name="title">Thermo Defender - Settings</property>
     <property name="border-width">20</property>
 	<child>
-      <object id="grid" class="GtkGrid">
+      <object id="settingsGrid" class="GtkGrid">
         <property name="visible">True</property>
         
 		<child>
@@ -165,19 +165,6 @@
         </child>
 		
 		
-		
-		<child>
-          <object id="btnSetVariables" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Set Monitor Values</property>
-			<property name="border-width">5</property>
-          </object>
-          <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">1</property>
-          </packing>
-        </child>
-		
 		<child>
           <object id="btnCalibrateWater" class="GtkButton">
             <property name="visible">True</property>
@@ -212,7 +199,6 @@
           </packing>
         </child>
 		
-		
 		<child>
 		  <object class="GtkHSeparator" id="hseparator1">
 			<property name="height_request">30</property>
@@ -228,105 +214,30 @@
 		
 		
 		<child>
-          <object id="btnCaptureFrame" class="GtkButton">
+          <object id="btnSaveSettings" class="GtkButton">
             <property name="visible">True</property>
-            <property name="label">Capture Single Frame</property>
-			<property name="border-width">5</property>
-          </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">6</property>
-          </packing>
-        </child>
-		<child>
-          <object id="btnStartMonitor" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Monitor</property>
+            <property name="label">Save Settings</property>
 			<property name="border-width">5</property>
           </object>
           <packing>
             <property name="left-attach">1</property>
             <property name="top-attach">6</property>
+            <property name="width">1</property>
           </packing>
         </child>
-		<child>
-          <object id="statuslabel" class="GtkLabel">
+        <child>
+          <object id="btnDoneSettings" class="GtkButton">
             <property name="visible">True</property>
-            <property name="label">Inactive</property>
+            <property name="label">Done</property>
+			<property name="border-width">6</property>
           </object>
           <packing>
             <property name="left-attach">2</property>
             <property name="top-attach">6</property>
-          </packing>
-        </child>
-		
-		<child>
-			<object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
-				
-				<child>
-                  <object class="GtkImage" id="captureImage">
-                    <property name="visible">True</property>
-                    
-                  </object>
-                </child>				
-			</object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">7</property>
-			<property name="width">3</property>
-          </packing>
-        </child>
-		<child>
-			<object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
-				
-				<child>
-                  <object class="GtkDrawingArea" id="videoArea">
-                    <property name="visible">True</property>
-                    
-                  </object>
-                </child>				
-			</object>
-          <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">7</property>
-			<property name="width">1</property>
-          </packing>
-        </child>
-		
-        
-		<child>
-          <object id="btnGpioOn" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Toggle LED</property>
-			<property name="border-width">5</property>
-          </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">8</property>
             <property name="width">1</property>
-			
           </packing>
         </child>
-		
-		
-		
-        <child>
-          <object id="quit" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Quit</property>
-			<property name="border-width">5</property>
-          </object>
-          <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">8</property>
-            <property name="width">1</property>
-			
-          </packing>
-        </child>
+	
       </object>
       <packing>
       </packing>

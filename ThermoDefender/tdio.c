@@ -9,34 +9,38 @@
 #include <wiringPi.h>
 
 
-const int pwmPin = 18; // PWM LED - Broadcom pin 18, P1 pin 12
-const int ledPin = 23; // Regular LED - Broadcom pin 23, P1 pin 16
-const int butPin = 17; // Active-low button - Broadcom pin 17, P1 pin 11
+//const int pwmPin = 18; // PWM LED - Broadcom pin 18, P1 pin 12
+const int pin12 = 12; // Regular LED - Broadcom pin 23, P1 pin 16
+const int pin16 = 16; // Regular LED - Broadcom pin 23, P1 pin 16
+//const int butPin = 17; // Active-low button - Broadcom pin 17, P1 pin 11
 
-const int pwmValue = 1; // Use this to set an LED brightness
+//const int pwmValue = 1; // Use this to set an LED brightness
 
-bool ledBright = false;
+//bool ledBright = false;
 
 void initializeGpio()
 {
 	wiringPiSetupGpio();
 	
 	//pinMode(pwmPin, PWM_OUTPUT); // Set PWM LED as PWM output
-    pinMode(ledPin, OUTPUT);     // Set regular LED as output
+    pinMode(pin12, OUTPUT);     // Set regular LED as output
+	pinMode(pin16, OUTPUT);     // Set regular LED as output
+/*
     pinMode(butPin, INPUT);      // Set button as INPUT
     pullUpDnControl(butPin, PUD_UP); // Enable pull-up resistor on button
+*/
 }
 
-int gpio_testing(GtkWidget *widget, bool *turnOn)
+int toggle_gpio_12(GtkWidget *widget, gpointer *data)
 {
     
 	// Regular pin out
-	int state = digitalRead(ledPin);
+	int state = digitalRead(pin12);
 		
 	if(state == 0)
-		digitalWrite(ledPin, HIGH); // Turn LED ON
+		digitalWrite(pin12, HIGH); // Turn LED ON
 	else
-		digitalWrite(ledPin, LOW); // Turn LED ON
+		digitalWrite(pin12, LOW); // Turn LED ON
 
 /*
 	// PWM led
@@ -67,5 +71,20 @@ int gpio_testing(GtkWidget *widget, bool *turnOn)
         }
     }
 */
+	return 0;
+}
+
+int toggle_gpio_16(GtkWidget *widget, gpointer *data)
+{
+    
+	// Regular pin out
+	int state = digitalRead(pin16);
+		
+	if(state == 0)
+		digitalWrite(pin16, HIGH); // Turn LED ON
+	else
+		digitalWrite(pin16, LOW); // Turn LED ON
+
+
 	return 0;
 }

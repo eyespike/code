@@ -281,13 +281,26 @@
 		
         
 		<child>
-          <object id="btnGpioOn" class="GtkButton">
+          <object id="btnGpio12" class="GtkButton">
             <property name="visible">True</property>
-            <property name="label">Toggle LED</property>
+            <property name="label">Toggle GPIO 12</property>
 			<property name="border-width">5</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
+            <property name="top-attach">8</property>
+            <property name="width">1</property>
+			
+          </packing>
+        </child>
+		<child>
+          <object id="btnGpio16" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Toggle GPIO 16</property>
+			<property name="border-width">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
             <property name="top-attach">8</property>
             <property name="width">1</property>
 			

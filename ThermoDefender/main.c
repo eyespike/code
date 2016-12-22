@@ -264,8 +264,11 @@ int main (int argc, char *argv[])
   
   
   //--- I/O buttons
-  button = gtk_builder_get_object (builder, "btnGpioOn");
-  g_signal_connect (button, "clicked", G_CALLBACK (gpio_testing), (gpointer)true);
+  button = gtk_builder_get_object (builder, "btnGpio12");
+  g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_12), (gpointer)true);
+  
+  button = gtk_builder_get_object (builder, "btnGpio16");
+  g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_16), (gpointer)true);
   
 /*
   button = gtk_builder_get_object (builder, "btnGpioOff");

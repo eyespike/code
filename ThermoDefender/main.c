@@ -5,21 +5,15 @@
 #include<pthread.h>
 #include<stdlib.h>
 #include<unistd.h>
+//#include<opencv2/core/core_c.h>
 //#include <opencv/cv.h>
 //#include <opencv/cxcore.h>
 
-
-
-/*
-#include "cxtypes.h"
-#include "cv.h"
-#include "highgui.h"
-#include "cvaux.h"
-#include "cxmisc.h"
-*/
 #include "monitor.h"
 #include "tdio.h"
 //#include "qdbmp.h"
+
+
 
 // --- UI Global Variables
 GMainContext *mainc;
@@ -72,7 +66,7 @@ static void capture_image (GtkWidget *widget, gpointer *data)
 }
 
 
-//gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
+gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 void video_area_expose (GtkWidget *da, BMP *bmp)
 {
 	
@@ -81,6 +75,22 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	GError *err = NULL;
 		
 
+	
+	IplImage *ocvImage;
+	//ocvImage = cvLoadImage("no-video.gif",1);
+	
+	pix = gdk_pixbuf_new_from_data (
+			(guchar*)ocvImage->imageData,
+			GDK_COLORSPACE_RGB,
+			FALSE,
+			ocvImage->depth,
+			ocvImage->width,
+			ocvImage->height,
+			(ocvImage->widthStep),
+			NULL,
+			NULL);
+	
+	
 	//if(data == NULL){
 	//	pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
 	//}
@@ -250,6 +260,7 @@ static void show_settings(GtkWidget *widget, gpointer *data)
   
   window = gtk_builder_get_object (builder, "settingsWindow");
   gtk_window_set_transient_for ((GtkWindow*)window, main_window);
+  gtk_window_set_keep_above((GtkWindow*)window, TRUE);
   gtk_window_set_modal((GtkWindow*)window, TRUE);
   
   //--- Detection Variables

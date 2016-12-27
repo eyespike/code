@@ -58,20 +58,11 @@ void set_capture_image_from_current_array(GtkImage *image)
 }
 
 static void capture_image (GtkWidget *widget, gpointer *data)
-{
-	int fd = connect_to_lepton();
-	while(transfer(fd)!=59){}
-	close(fd);
-	set_capture_image_from_current_array(captureImage);
-}
-/*
-
-
 /*
 unsigned char* generate_image_from_pixels()
 {
-	MagickWand *m_wand = NULL;
-	PixelWand *p_wand = NULL;
+	int fd = connect_to_lepton();
+	while(transfer(fd)!=59){}
 	PixelIterator *iterator = NULL;
 	PixelWand **pixels = NULL;
 	int x,y,gray;
@@ -107,9 +98,9 @@ unsigned char* generate_image_from_pixels()
 	DestroyMagickWand(m_wand);
 	MagickWandTerminus();
 
-	return block;
+	close(fd);
+	set_capture_image_from_current_array(captureImage);
 }
-*/
 
 
 
@@ -150,14 +141,12 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	
 	//if(data == NULL){
 		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
-	//}
+	// Tidy up
  	if(m_wand) m_wand = DestroyMagickWand(m_wand);
 
 	MagickWandTerminus();
-<<<<<<< 277f4e530c341e7881da3af771f14de3c27cad34
-	//	pix = gdk_pixbuf_new_from_file ("capture.bmp", &err);
 		
-	//else
+	unsigned char *block = (unsigned char*)data;
 	//{
 		//
 		//UCHAR *pixData = (UCHAR*)data;
@@ -168,20 +157,21 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 		//UCHAR *pixels = (UCHAR*)data;
 		
 		pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
-=======
-*/
-	
-	unsigned char *block = (unsigned char*)data;
-	
-	pix = gdk_pixbuf_new_from_data (
->>>>>>> Basic video feed working.
 			(guchar*)block,
 			GDK_COLORSPACE_RGB,
 			FALSE,
+<<<<<<< 459f0747be5997934cf5be66f6cf945d954ab072
 			8,80,60,240,
 			pix_destroy,
 			bmp);
 	//}
+=======
+			//8, 480, 360, (480*3),
+			8, 1110, 831, (1110*3),
+			NULL,
+			NULL);
+	
+>>>>>>> Scaled video up to the actual intended size. Some tweaking is still needed for a consistent feed.
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
     //    cr = gdk_cairo_create (da->window);
@@ -190,17 +180,12 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
     //    cairo_fill (cr);
     cairo_destroy (cr);
 	
-<<<<<<< 277f4e530c341e7881da3af771f14de3c27cad34
-	BMP_Free(bmp);
-	//return TRUE;
-	
-	
-	
-	
-=======
 	memset(block, 0, sizeof(block));
 	return FALSE;
->>>>>>> Basic video feed working.
+	
+	
+	
+	
 }
 */
 
@@ -560,7 +545,7 @@ int main (int argc, char *argv[])
   
   // --- Video Area
   videoArea = (GtkImage*)gtk_builder_get_object (builder, "videoArea");
-  gtk_widget_set_size_request ((GtkWidget*)videoArea, 500, 380);
+  gtk_widget_set_size_request ((GtkWidget*)videoArea, 1110, 831);
   //g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
 
   

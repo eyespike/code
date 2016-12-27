@@ -161,6 +161,7 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 			GDK_COLORSPACE_RGB,
 			FALSE,
 			8,80,60,240,
+			8, 1110, 831, (1110*3),
 			pix_destroy,
 			bmp);
 	//}
@@ -537,7 +538,7 @@ int main (int argc, char *argv[])
   
   // --- Video Area
   videoArea = (GtkImage*)gtk_builder_get_object (builder, "videoArea");
-  gtk_widget_set_size_request ((GtkWidget*)videoArea, 500, 380);
+  gtk_widget_set_size_request ((GtkWidget*)videoArea, 1110, 831);
   //g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
 
   

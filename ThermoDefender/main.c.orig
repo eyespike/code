@@ -57,7 +57,6 @@ void set_capture_image_from_current_array(GtkImage *image)
 	gtk_image_set_from_file (image, largeImageName);	
 }
 
-
 static void capture_image (GtkWidget *widget, gpointer *data)
 {
 	int fd = connect_to_lepton();
@@ -65,11 +64,56 @@ static void capture_image (GtkWidget *widget, gpointer *data)
 	close(fd);
 	set_capture_image_from_current_array(captureImage);
 }
+/*
 
-<<<<<<< a8c057e5c643b39f7e7fbfbd8e2f38cc124efaa1
 
-=======
->>>>>>> Added the MagickWand library. Succesfully generated a pixbuf from an ImageMagick image.
+/*
+unsigned char* generate_image_from_pixels()
+{
+	MagickWand *m_wand = NULL;
+	PixelWand *p_wand = NULL;
+	PixelIterator *iterator = NULL;
+	PixelWand **pixels = NULL;
+	int x,y,gray;
+	char hex[128];
+
+	MagickWandGenesis();
+
+	p_wand = NewPixelWand();
+	PixelSetColor(p_wand,"white");
+	m_wand = NewMagickWand();
+	// Create a 100x100 image with a default of white
+	MagickNewImage(m_wand,480,360,p_wand);
+	// Get a new pixel iterator 
+	iterator=NewPixelIterator(m_wand);
+	for(y=0;y<360;y++) {
+		// Get the next row of the image as an array of PixelWands
+		pixels=PixelGetNextIteratorRow(iterator,&x);
+		// Set the row of wands to a simple gray scale gradient
+		for(x=0;x<480;x++) {
+			gray = x*255/480;
+			sprintf(hex,"#%02x%02x%02x",gray,gray,gray);
+			PixelSetColor(pixels[x],hex);
+		}
+		// Sync writes the pixels back to the m_wand
+		PixelSyncIterator(iterator);
+	}
+	
+	unsigned char *block = (unsigned char*)malloc(480*360*3);
+	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
+	
+	// Clean up
+	iterator=DestroyPixelIterator(iterator);
+	DestroyMagickWand(m_wand);
+	MagickWandTerminus();
+
+	return block;
+}
+*/
+
+
+
+
 gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 void video_area_expose (GtkWidget *da, BMP *bmp)
 {
@@ -78,6 +122,7 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	GdkPixbuf *pix;
 	GError *err = NULL;
 		
+/*
 	MagickWand *m_wand = NULL;
 
 	MagickWandGenesis();
@@ -88,32 +133,28 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	// Read the input image
 	MagickReadImage(m_wand,"no-video.gif");
 	
-	
-	unsigned char *block = (unsigned char*)malloc(480*360*3);
-	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
-	
-	
-	// Tidy up
- 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
-
-	MagickWandTerminus();
-	
+	IplImage *ocvImage;
+	//ocvImage = cvLoadImage("no-video.gif",1);
 	
 	pix = gdk_pixbuf_new_from_data (
-			(guchar*)block,
+			(guchar*)ocvImage->imageData,
 			GDK_COLORSPACE_RGB,
 			FALSE,
-			8, 480, 360, (480*3),
+			ocvImage->depth,
+			ocvImage->width,
+			ocvImage->height,
+			(ocvImage->widthStep),
 			NULL,
 			NULL);
 	
-<<<<<<< a8c057e5c643b39f7e7fbfbd8e2f38cc124efaa1
 	
 	//if(data == NULL){
-	//	pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
+		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
 	//}
+ 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
 
-	//else
+	MagickWandTerminus();
+<<<<<<< 277f4e530c341e7881da3af771f14de3c27cad34
 	//	pix = gdk_pixbuf_new_from_file ("capture.bmp", &err);
 		
 	//else
@@ -127,15 +168,20 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 		//UCHAR *pixels = (UCHAR*)data;
 		
 		pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
+=======
+*/
+	
+	unsigned char *block = (unsigned char*)data;
+	
+	pix = gdk_pixbuf_new_from_data (
+>>>>>>> Basic video feed working.
+			(guchar*)block,
 			GDK_COLORSPACE_RGB,
 			FALSE,
 			8,80,60,240,
 			pix_destroy,
 			bmp);
 	//}
-
-=======
->>>>>>> Added the MagickWand library. Succesfully generated a pixbuf from an ImageMagick image.
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
     //    cr = gdk_cairo_create (da->window);
@@ -144,13 +190,19 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
     //    cairo_fill (cr);
     cairo_destroy (cr);
 	
+<<<<<<< 277f4e530c341e7881da3af771f14de3c27cad34
 	BMP_Free(bmp);
 	//return TRUE;
 	
 	
 	
 	
+=======
+	memset(block, 0, sizeof(block));
+	return FALSE;
+>>>>>>> Basic video feed working.
 }
+*/
 
 
 
@@ -445,87 +497,10 @@ void resize_image(void)
 }
 */
 
-/*
-void generate_image_from_pixels()
-{
-	MagickWand *m_wand = NULL;
-	PixelWand *p_wand = NULL;
-	PixelIterator *iterator = NULL;
-	PixelWand **pixels = NULL;
-	int x,y,gray;
-	char hex[128];
-
-	MagickWandGenesis();
-
-	p_wand = NewPixelWand();
-	PixelSetColor(p_wand,"white");
-	m_wand = NewMagickWand();
-	// Create a 100x100 image with a default of white
-	MagickNewImage(m_wand,100,100,p_wand);
-	// Get a new pixel iterator 
-	iterator=NewPixelIterator(m_wand);
-	for(y=0;y<100;y++) {
-		// Get the next row of the image as an array of PixelWands
-		pixels=PixelGetNextIteratorRow(iterator,&x);
-		// Set the row of wands to a simple gray scale gradient
-		for(x=0;x<100;x++) {
-			gray = x*255/100;
-			sprintf(hex,"#%02x%02x%02x",gray,gray,gray);
-			PixelSetColor(pixels[x],hex);
-		}
-		// Sync writes the pixels back to the m_wand
-		PixelSyncIterator(iterator);
-	}
-	MagickWriteImage(m_wand,"bits_demo.gif");
-
-	// Clean up
-	iterator=DestroyPixelIterator(iterator);
-	DestroyMagickWand(m_wand);
-	MagickWandTerminus();
-
-}
-*/
-
-
-
-/*
-void test_wand()
-{
-	MagickWand *m_wand = NULL;
-
-	MagickWandGenesis();
-
-	// Create a wand
-	m_wand = NewMagickWand();
-
-	// Read the input image
-	MagickReadImage(m_wand,"no-video.gif");
-	
-	
-	
-	
-	
-	
-
-	// Tidy up
- 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
-
-	MagickWandTerminus();
-
-}
-*/
 
 
 
 
-/*
-int main (int argc, char *argv[])
-{
-
-	test_wand();
-	return 0;
-}
-*/
 
 
 
@@ -586,7 +561,7 @@ int main (int argc, char *argv[])
   // --- Video Area
   videoArea = (GtkImage*)gtk_builder_get_object (builder, "videoArea");
   gtk_widget_set_size_request ((GtkWidget*)videoArea, 500, 380);
-  g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
+  //g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
 
   
   //--- Monitor toggle & status

@@ -12,6 +12,7 @@
 #include <linux/spi/spidev.h>
 #include <limits.h>
 #include "main.h"
+#include "wand/magick-wand.h"
 //#include "qdbmp.h"
 
 
@@ -87,78 +88,91 @@ gboolean set_capture_image(gpointer data){
 	return FALSE;
 }
 
-/*
 static int currentIndexShift = 0;
 static bool creatingImage = false;
 
-BMP* convert_array_to_bmp (int tcArray[60][80], int minValue, int maxValue)
+unsigned char* convert_array_to_image_data (int tcArray[60][80], int minValue, int maxValue)
 {
 	creatingImage = true;
 	
-	int i, j;
 	uint16_t pixValue;
 	
 	float diff = maxValue - minValue;
 	float scale = 255/diff;
 	
-	//printf("Diff: %3.6f\n", diff);
-	//printf("Scale: %3.6f\n", scale);
+	printf("Max: %d\n", maxValue);
+	printf("Min: %d\n", minValue);
+	printf("Diff: %3.6f\n", diff);
+	printf("Scale: %3.6f\n", scale);
 	
-	BMP *bmp = BMP_Create(80,60,8);
-	if(BMP_GetError != BMP_OK)
-		printf(BMP_GetErrorDescription());
+	MagickWand *m_wand = NULL;
+	PixelWand *p_wand = NULL;
+	PixelIterator *iterator = NULL;
+	PixelWand **pixels = NULL;
+	int x,y;
+	char hex[128];
 
-	for (i = 0; i < 256; i++)
-	{
-		//BMP_SetPaletteColor(bmp, i, 244, 66, 241);
-		BMP_SetPaletteColor(bmp, i, colormap[3*i], colormap[3*i+1], colormap[3*i+2]);
+	MagickWandGenesis();
+
+	p_wand = NewPixelWand();
+	PixelSetColor(p_wand,"white");
+	m_wand = NewMagickWand();
+	// Create a 100x100 image with a default of white
+	MagickNewImage(m_wand,80,60,p_wand);
+	// Get a new pixel iterator 
+	iterator=NewPixelIterator(m_wand);
+	for(y=0;y<60;y++) {
+		// Get the next row of the image as an array of PixelWands
+		pixels=PixelGetNextIteratorRow(iterator,&x);
+		// Set the row of wands to a simple gray scale gradient
+		for(x=0;x<80;x++) {
+			pixValue = (tcArray[y][x] - minValue) * scale;
+			if(pixValue > 0)
+				pixValue = pixValue - (pixValue % 3);
+			
+			sprintf(hex,"#%02x%02x%02x",colormap[3*pixValue], colormap[3*pixValue+1], colormap[3*pixValue+2]);
+			PixelSetColor(pixels[x],hex);
+		}
+		// Sync writes the pixels back to the m_wand
+		PixelSyncIterator(iterator);
 	}
 	
-	if(currentIndexShift == 100)
-		currentIndexShift = 0;
-	else
-		currentIndexShift += 5;
+	MagickResizeImage(m_wand,480,360,LanczosFilter,1);
 	
+	unsigned char *block = (unsigned char*)malloc(480*360*3);
+	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
 	
-	for(i=0;i<PACKETS_PER_FRAME;i++)
-	{
-		for(j=0;j<80;j++){
-			pixValue = (tcArray[i][j] - minValue) * scale;
-			
+	// Clean up
+	iterator=DestroyPixelIterator(iterator);
+	DestroyMagickWand(m_wand);
+	MagickWandTerminus();
+
 		
-			//BMP_SetPixelRGB(bmp, j,i, colormap[3*pixValue], colormap[3*pixValue+1], colormap[3*pixValue+2] );
-			
-			BMP_SetPixelIndex(bmp, j, i, j+i + currentIndexShift);
-			//BMP_SetPixelRGB(bmp, j,i, 244, 66, 241 );
-		}
-	}	
-	
-	//BMP_WriteFile(bmp,"capture.bmp");
-	
 	creatingImage = false;	
 	
-	return bmp;
+	return block;
 	//printf("Palette size: %d\n", sizeof(colormap_rainbow) /sizeof(*colormap_rainbow));
 }
 
 
 gboolean set_video_frame(gpointer data){
 	//video_area_expose ((GtkWidget*)videoArea, NULL, data);
-	video_area_expose ((GtkWidget*)videoArea, (BMP*)data);
+	video_area_expose ((GtkWidget*)videoArea, (unsigned char*)data);
 	return FALSE;
 }
 
 static void que_video_frame(int tcArray[60][80], int minValue, int maxValue)
 {
 	if(!creatingImage){
-		BMP *bmp = convert_array_to_bmp(tcArray, minValue, maxValue);
+		//BMP *bmp = convert_array_to_bmp(tcArray, minValue, maxValue);
 		
 		//BMP *bmp = BMP_ReadFile( "capture.bmp" );
 		
-		g_main_context_invoke(mainc, set_video_frame, (gpointer)bmp);
+		unsigned char * block = convert_array_to_image_data(tcArray, minValue, maxValue);
+		
+		g_main_context_invoke(mainc, set_video_frame, (gpointer)block);
 	}
 }
-*/
 
 static void pabort(const char *s)
 {
@@ -476,7 +490,7 @@ void* f_monitor(void *arg)
 				if(!water_detected)
 				{
 					water_detected = true;
-					g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+					//g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 					msg = "Water Detected! Looking for flooding.";
 					g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
 				}
@@ -500,7 +514,7 @@ void* f_monitor(void *arg)
 				printf("Body detected: %d\n", results.body_detected);
 				printf("Fire detected: %d\n", results.fire_detected);
 				
-				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
+				//g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 				pabort("Fire Detected");
 				//char *s = "Fire Detected!";
 				//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
@@ -535,10 +549,10 @@ void* f_monitor(void *arg)
 				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 			}
 			
-			//if(currentIteration % 15 ==0){
+			if(currentIteration % 2 ==0){
 			//if(currentIteration == 2){
-			//	que_video_frame(current_lepton_array, results.minValue, results.maxValue);
-			//}
+				que_video_frame(current_lepton_array, results.minValue, results.maxValue);
+			}
 
 			usleep(24000); // 30 FPS
 			//usleep(50000); // 20 FPS

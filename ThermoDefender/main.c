@@ -58,13 +58,52 @@ void set_capture_image_from_current_array(GtkImage *image)
 }
 
 static void capture_image (GtkWidget *widget, gpointer *data)
+/*
+unsigned char* generate_image_from_pixels()
 {
 	int fd = connect_to_lepton();
 	while(transfer(fd)!=59){}
+	PixelIterator *iterator = NULL;
+	PixelWand **pixels = NULL;
+	int x,y,gray;
+	char hex[128];
+
+	MagickWandGenesis();
+
+	p_wand = NewPixelWand();
+	PixelSetColor(p_wand,"white");
+	m_wand = NewMagickWand();
+	// Create a 100x100 image with a default of white
+	MagickNewImage(m_wand,480,360,p_wand);
+	// Get a new pixel iterator 
+	iterator=NewPixelIterator(m_wand);
+	for(y=0;y<360;y++) {
+		// Get the next row of the image as an array of PixelWands
+		pixels=PixelGetNextIteratorRow(iterator,&x);
+		// Set the row of wands to a simple gray scale gradient
+		for(x=0;x<480;x++) {
+			gray = x*255/480;
+			sprintf(hex,"#%02x%02x%02x",gray,gray,gray);
+			PixelSetColor(pixels[x],hex);
+		}
+		// Sync writes the pixels back to the m_wand
+		PixelSyncIterator(iterator);
+	}
+	
+	unsigned char *block = (unsigned char*)malloc(480*360*3);
+	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
+	
+	// Clean up
+	iterator=DestroyPixelIterator(iterator);
+	DestroyMagickWand(m_wand);
+	MagickWandTerminus();
+
 	close(fd);
 	set_capture_image_from_current_array(captureImage);
 }
-/*
+
+
+
 
 gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 void video_area_expose (GtkWidget *da, BMP *bmp)
@@ -74,6 +113,7 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	GdkPixbuf *pix;
 	GError *err = NULL;
 		
+/*
 	MagickWand *m_wand = NULL;
 
 	MagickWandGenesis();
@@ -101,13 +141,12 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	
 	//if(data == NULL){
 		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
-	//}
+	// Tidy up
  	if(m_wand) m_wand = DestroyMagickWand(m_wand);
 
 	MagickWandTerminus();
-	//	pix = gdk_pixbuf_new_from_file ("capture.bmp", &err);
 		
-	//else
+	unsigned char *block = (unsigned char*)data;
 	//{
 		//
 		//UCHAR *pixData = (UCHAR*)data;
@@ -133,8 +172,8 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
     //    cairo_fill (cr);
     cairo_destroy (cr);
 	
-	BMP_Free(bmp);
-	//return TRUE;
+	memset(block, 0, sizeof(block));
+	return FALSE;
 	
 	
 	
@@ -435,87 +474,10 @@ void resize_image(void)
 }
 */
 
-/*
-void generate_image_from_pixels()
-{
-	MagickWand *m_wand = NULL;
-	PixelWand *p_wand = NULL;
-	PixelIterator *iterator = NULL;
-	PixelWand **pixels = NULL;
-	int x,y,gray;
-	char hex[128];
-
-	MagickWandGenesis();
-
-	p_wand = NewPixelWand();
-	PixelSetColor(p_wand,"white");
-	m_wand = NewMagickWand();
-	// Create a 100x100 image with a default of white
-	MagickNewImage(m_wand,100,100,p_wand);
-	// Get a new pixel iterator 
-	iterator=NewPixelIterator(m_wand);
-	for(y=0;y<100;y++) {
-		// Get the next row of the image as an array of PixelWands
-		pixels=PixelGetNextIteratorRow(iterator,&x);
-		// Set the row of wands to a simple gray scale gradient
-		for(x=0;x<100;x++) {
-			gray = x*255/100;
-			sprintf(hex,"#%02x%02x%02x",gray,gray,gray);
-			PixelSetColor(pixels[x],hex);
-		}
-		// Sync writes the pixels back to the m_wand
-		PixelSyncIterator(iterator);
-	}
-	MagickWriteImage(m_wand,"bits_demo.gif");
-
-	// Clean up
-	iterator=DestroyPixelIterator(iterator);
-	DestroyMagickWand(m_wand);
-	MagickWandTerminus();
-
-}
-*/
-
-
-
-/*
-void test_wand()
-{
-	MagickWand *m_wand = NULL;
-
-	MagickWandGenesis();
-
-	// Create a wand
-	m_wand = NewMagickWand();
-
-	// Read the input image
-	MagickReadImage(m_wand,"no-video.gif");
-	
-	
-	
-	
-	
-	
-
-	// Tidy up
- 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
-
-	MagickWandTerminus();
-
-}
-*/
 
 
 
 
-/*
-int main (int argc, char *argv[])
-{
-
-	test_wand();
-	return 0;
-}
-*/
 
 
 
@@ -576,7 +538,7 @@ int main (int argc, char *argv[])
   // --- Video Area
   videoArea = (GtkImage*)gtk_builder_get_object (builder, "videoArea");
   gtk_widget_set_size_request ((GtkWidget*)videoArea, 500, 380);
-  g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
+  //g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
 
   
   //--- Monitor toggle & status

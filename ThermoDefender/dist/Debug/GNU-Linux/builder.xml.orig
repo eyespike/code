@@ -3,11 +3,15 @@
     <property name="visible">True</property>
     <property name="title">Thermo Defender</property>
     <property name="border-width">20</property>
+
+	
+	
 	<child>
+<<<<<<< a8c057e5c643b39f7e7fbfbd8e2f38cc124efaa1
       <object id="grid" class="GtkGrid">
         <property name="visible">True</property>
         
-	<!--	<child>
+		<child>
           <object id="lblWaterTcDiff" class="GtkLabel">
             <property name="visible">True</property>
             <property name="label">Water Temp Diff</property>
@@ -41,122 +45,87 @@
 		
 		<child>
 		  <object class="GtkBox">
+=======
+	
+<!--	  <object id="mainLayout" class="GtkLayout">
+		<property name="visible">True</property>
+		<child> -->
+	
+	
+			  <object id="grid" class="GtkGrid">
+>>>>>>> Added the MagickWand library. Succesfully generated a pixbuf from an ImageMagick image.
 				<property name="visible">True</property>
-				<property name="border-width">5</property>
+				
 				<child>
-					<object id="eWaterTcDiff" class="GtkEntry">
-						<property name="visible">True</property>
-					</object>
+				  <object id="btnCaptureFrame" class="GtkButton">
+					<property name="visible">True</property>
+					<property name="label">Capture Single Frame</property>
+					<property name="border-width">5</property>
+				  </object>
+				  <packing>
+					<property name="left-attach">0</property>
+					<property name="top-attach">0</property>
+				  </packing>
 				</child>
-			</object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">1</property>
-          </packing>
-        </child>
-		<child>
-		  <object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
 				<child>
-					<object id="eBodyTcDiff" class="GtkEntry">
-						<property name="visible">True</property>
-					</object>
+				  <object id="btnStartMonitor" class="GtkButton">
+					<property name="visible">True</property>
+					<property name="label">Monitor</property>
+					<property name="border-width">5</property>
+				  </object>
+				  <packing>
+					<property name="left-attach">1</property>
+					<property name="top-attach">0</property>
+				  </packing>
 				</child>
-			</object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">1</property>
-          </packing>
-        </child>
-		<child>
-          <object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
 				<child>
-					<object id="eFireTcDiff" class="GtkEntry">
-						<property name="visible">True</property>
-					</object>
+				  <object id="statuslabel" class="GtkLabel">
+					<property name="visible">True</property>
+					<property name="label">Inactive</property>
+				  </object>
+				  <packing>
+					<property name="left-attach">2</property>
+					<property name="top-attach">0</property>
+				  </packing>
 				</child>
-			</object>
-          <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">1</property>
-          </packing>
-        </child>
-		
-		
-		<child>
-          <object id="lblWaterPC" class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="label">Water Min Count</property>
-          </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">2</property>
-          </packing>
-        </child>
-		<child>
-          <object id="lblBodyPC" class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="label">Body Min Count</property>
-          </object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">2</property>
-          </packing>
-        </child>
-		<child>
-          <object id="lblFirePC" class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="label">Fire Min Count</property>
-          </object>
-          <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">2</property>
-          </packing>
-        </child>
-		
-		
-		<child>
-		  <object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
+				
 				<child>
-					<object id="eWaterPC" class="GtkEntry">
+					<object class="GtkBox">
 						<property name="visible">True</property>
+						<property name="border-width">5</property>
+						
+						<child>
+						  <object class="GtkImage" id="captureImage">
+							<property name="visible">True</property>
+							
+						  </object>
+						</child>				
 					</object>
+				  <packing>
+					<property name="left-attach">0</property>
+					<property name="top-attach">1</property>
+					<property name="width">3</property>
+				  </packing>
 				</child>
-			</object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">3</property>
-          </packing>
-        </child>
-		<child>
-		  <object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
 				<child>
-					<object id="eBodyPC" class="GtkEntry">
+					<object class="GtkBox">
 						<property name="visible">True</property>
+						<property name="border-width">5</property>
+						
+						<child>
+						  <object class="GtkDrawingArea" id="videoArea">
+							<property name="visible">True</property>
+							
+						  </object>
+						</child>				
 					</object>
+				  <packing>
+					<property name="left-attach">3</property>
+					<property name="top-attach">1</property>
+					<property name="width">1</property>
+				  </packing>
 				</child>
-			</object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">3</property>
-          </packing>
-        </child>
-		<child>
-          <object class="GtkBox">
-				<property name="visible">True</property>
-				<property name="border-width">5</property>
-				<child>
-					<object id="eFirePC" class="GtkEntry">
-						<property name="visible">True</property>
-					</object>
-				</child>
+<<<<<<< a8c057e5c643b39f7e7fbfbd8e2f38cc124efaa1
 			</object>
           <packing>
             <property name="left-attach">2</property>
@@ -226,7 +195,6 @@
           </packing>
 		</child>
 		
-		-->
 		
 		<child>
           <object id="btnCaptureFrame" class="GtkButton">
@@ -236,7 +204,7 @@
           </object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">0</property>
+            <property name="top-attach">6</property>
           </packing>
         </child>
 		<child>
@@ -247,7 +215,7 @@
           </object>
           <packing>
             <property name="left-attach">1</property>
-            <property name="top-attach">0</property>
+            <property name="top-attach">6</property>
           </packing>
         </child>
 		<child>
@@ -257,7 +225,7 @@
           </object>
           <packing>
             <property name="left-attach">2</property>
-            <property name="top-attach">0</property>
+            <property name="top-attach">6</property>
           </packing>
         </child>
 		
@@ -275,7 +243,7 @@
 			</object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">1</property>
+            <property name="top-attach">7</property>
 			<property name="width">3</property>
           </packing>
         </child>
@@ -293,39 +261,20 @@
 			</object>
           <packing>
             <property name="left-attach">3</property>
-            <property name="top-attach">1</property>
+            <property name="top-attach">7</property>
 			<property name="width">1</property>
           </packing>
         </child>
 		
         
 		<child>
-<<<<<<< 21beaf29259f72a04b910f3500db5776cd8b7897
-          <object id="btnGpio12" class="GtkButton">
+          <object id="btnGpioOn" class="GtkButton">
             <property name="visible">True</property>
-            <property name="label">Toggle GPIO 12</property>
-=======
-          <object id="btnShowSettings" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Settings</property>
->>>>>>> Moved the calibration and settings to a dialog window.
+            <property name="label">Toggle LED</property>
 			<property name="border-width">5</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">2</property>
-            <property name="width">1</property>
-			
-          </packing>
-        </child>
-		<child>
-          <object id="btnGpio16" class="GtkButton">
-            <property name="visible">True</property>
-            <property name="label">Toggle GPIO 16</property>
-			<property name="border-width">5</property>
-          </object>
-          <packing>
-            <property name="left-attach">1</property>
             <property name="top-attach">8</property>
             <property name="width">1</property>
 			
@@ -341,8 +290,8 @@
 			<property name="border-width">5</property>
           </object>
           <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">2</property>
+            <property name="left-attach">3</property>
+            <property name="top-attach">8</property>
             <property name="width">1</property>
 			
           </packing>
@@ -350,6 +299,45 @@
       </object>
       <packing>
       </packing>
+=======
+				
+				
+				<child>
+				  <object id="btnShowSettings" class="GtkButton">
+					<property name="visible">True</property>
+					<property name="label">Settings</property>
+					<property name="border-width">5</property>
+				  </object>
+				  <packing>
+					<property name="left-attach">0</property>
+					<property name="top-attach">2</property>
+					<property name="width">1</property>
+				  </packing>
+				</child>
+				
+				<child>
+				  <object id="quit" class="GtkButton">
+					<property name="visible">True</property>
+					<property name="label">Quit</property>
+					<property name="border-width">5</property>
+				  </object>
+				  <packing>
+					<property name="left-attach">1</property>
+					<property name="top-attach">2</property>
+					<property name="width">1</property>
+				  </packing>
+				</child>
+			  </object>
+			  <packing>
+			  </packing> -->
+			  
+			  
+			  
+	<!--	  </child>
+	  </object>
+	<packing>
+	</packing>-->
+>>>>>>> Added the MagickWand library. Succesfully generated a pixbuf from an ImageMagick image.
     </child>
   </object>
 </interface>

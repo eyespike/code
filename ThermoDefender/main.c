@@ -5,9 +5,8 @@
 #include<pthread.h>
 #include<stdlib.h>
 #include<unistd.h>
-//#include<opencv2/core/core_c.h>
-//#include <opencv/cv.h>
-//#include <opencv/cxcore.h>
+//#include "MagickCore.h"
+#include "wand/magick-wand.h"
 
 #include "monitor.h"
 #include "tdio.h"
@@ -23,6 +22,8 @@ GtkLabel *statusLabel;
 GtkButton *monitorButton;
 GtkImage *captureImage;
 GtkDrawingArea *videoArea;
+
+
 
 
  typedef struct {
@@ -56,7 +57,6 @@ void set_capture_image_from_current_array(GtkImage *image)
 	gtk_image_set_from_file (image, largeImageName);	
 }
 
-
 static void capture_image (GtkWidget *widget, gpointer *data)
 {
 	int fd = connect_to_lepton();
@@ -64,7 +64,7 @@ static void capture_image (GtkWidget *widget, gpointer *data)
 	close(fd);
 	set_capture_image_from_current_array(captureImage);
 }
-
+/*
 
 gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 void video_area_expose (GtkWidget *da, BMP *bmp)
@@ -74,7 +74,15 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	GdkPixbuf *pix;
 	GError *err = NULL;
 		
+	MagickWand *m_wand = NULL;
 
+	MagickWandGenesis();
+
+	// Create a wand
+	m_wand = NewMagickWand();
+
+	// Read the input image
+	MagickReadImage(m_wand,"no-video.gif");
 	
 	IplImage *ocvImage;
 	//ocvImage = cvLoadImage("no-video.gif",1);
@@ -92,10 +100,11 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	
 	
 	//if(data == NULL){
-	//	pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
+		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
 	//}
+ 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
 
-	//else
+	MagickWandTerminus();
 	//	pix = gdk_pixbuf_new_from_file ("capture.bmp", &err);
 		
 	//else
@@ -109,13 +118,13 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 		//UCHAR *pixels = (UCHAR*)data;
 		
 		pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
+			(guchar*)block,
 			GDK_COLORSPACE_RGB,
 			FALSE,
 			8,80,60,240,
 			pix_destroy,
 			bmp);
 	//}
-
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
     //    cr = gdk_cairo_create (da->window);
@@ -126,9 +135,12 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 	
 	BMP_Free(bmp);
 	//return TRUE;
+	
+	
+	
+	
 }
 */
-
 
 
 
@@ -255,7 +267,7 @@ static void show_settings(GtkWidget *widget, gpointer *data)
   GObject *entry;
   
   builder = gtk_builder_new ();
-  gtk_builder_set_application(builder, app_ui);
+  //gtk_builder_set_application(builder, app_ui);
   gtk_builder_add_from_file (builder, "builder-settings.xml", NULL);
   
   window = gtk_builder_get_object (builder, "settingsWindow");
@@ -390,6 +402,120 @@ static void toggle_monitor (GtkWidget *widget, gpointer *data)
 
 
 
+/*
+void resize_image(void)
+{
+	MagickWand *m_wand = NULL;
+
+	int width, height;
+	
+	MagickWandGenesis();
+
+	// Create a wand
+	m_wand = NewMagickWand();
+
+	// Read the input image
+	MagickReadImage(m_wand,"capture.bmp");
+	
+	width = MagickGetImageWidth(m_wand) * 6;
+	height = MagickGetImageHeight(m_wand) * 6;
+	
+	MagickResizeImage(m_wand,width,height,LanczosFilter,1);
+	
+	MagickSetImageCompressionQuality(m_wand,95);
+	
+	
+	// write it 
+	MagickWriteImage(m_wand,"capture.jpg");
+
+	// Tidy up
+ 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
+
+	MagickWandTerminus();
+}
+*/
+
+/*
+void generate_image_from_pixels()
+{
+	MagickWand *m_wand = NULL;
+	PixelWand *p_wand = NULL;
+	PixelIterator *iterator = NULL;
+	PixelWand **pixels = NULL;
+	int x,y,gray;
+	char hex[128];
+
+	MagickWandGenesis();
+
+	p_wand = NewPixelWand();
+	PixelSetColor(p_wand,"white");
+	m_wand = NewMagickWand();
+	// Create a 100x100 image with a default of white
+	MagickNewImage(m_wand,100,100,p_wand);
+	// Get a new pixel iterator 
+	iterator=NewPixelIterator(m_wand);
+	for(y=0;y<100;y++) {
+		// Get the next row of the image as an array of PixelWands
+		pixels=PixelGetNextIteratorRow(iterator,&x);
+		// Set the row of wands to a simple gray scale gradient
+		for(x=0;x<100;x++) {
+			gray = x*255/100;
+			sprintf(hex,"#%02x%02x%02x",gray,gray,gray);
+			PixelSetColor(pixels[x],hex);
+		}
+		// Sync writes the pixels back to the m_wand
+		PixelSyncIterator(iterator);
+	}
+	MagickWriteImage(m_wand,"bits_demo.gif");
+
+	// Clean up
+	iterator=DestroyPixelIterator(iterator);
+	DestroyMagickWand(m_wand);
+	MagickWandTerminus();
+
+}
+*/
+
+
+
+/*
+void test_wand()
+{
+	MagickWand *m_wand = NULL;
+
+	MagickWandGenesis();
+
+	// Create a wand
+	m_wand = NewMagickWand();
+
+	// Read the input image
+	MagickReadImage(m_wand,"no-video.gif");
+	
+	
+	
+	
+	
+	
+
+	// Tidy up
+ 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
+
+	MagickWandTerminus();
+
+}
+*/
+
+
+
+
+/*
+int main (int argc, char *argv[])
+{
+
+	test_wand();
+	return 0;
+}
+*/
 
 
 
@@ -399,6 +525,8 @@ int main (int argc, char *argv[])
   GObject *window;
   GObject *button;
   GObject *grid;
+  GObject *layout;
+  GtkWidget *bgImage;
   
   
   // Initialize the IO
@@ -412,13 +540,22 @@ int main (int argc, char *argv[])
   builder = gtk_builder_new ();
   gtk_builder_set_application(builder, app_ui);
   gtk_builder_add_from_file (builder, "builder.xml", NULL);
+  //gtk_builder_add_from_file (builder, "builder2.glade", NULL);
     
-  //--- Connect signal handlers to the constructed widgets.
+  //--- Main Window
   window = gtk_builder_get_object (builder, "mainWindow");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
   main_window = (GtkWindow*)window;
-  //gtk_window_fullscreen(window);
+  //gtk_window_fullscreen(main_window);
   
+  // -- Set the background image of the window.
+  //layout = gtk_builder_get_object (builder, "mainLayout");
+  //gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)layout);
+  //bgImage = gtk_image_new_from_file("demo_bg.png");
+  //gtk_layout_put(GTK_LAYOUT(layout), bgImage, 0, 0);  
+  
+  
+  // --- Grid
   grid = gtk_builder_get_object (builder, "grid");
   gtk_widget_set_halign((GtkWidget*)grid, GTK_ALIGN_CENTER);
   gtk_widget_set_valign((GtkWidget*)grid, GTK_ALIGN_CENTER);
@@ -431,16 +568,16 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_16), (gpointer)true);
   //--- Capture Image
   captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
-  gtk_image_set_from_file (captureImage, "no-image.gif");
-  gtk_widget_set_halign ((GtkWidget*)captureImage, GTK_ALIGN_CENTER);
+  gtk_image_set_from_file (captureImage, "demo_bg_small.png");
+  //gtk_widget_set_halign ((GtkWidget*)captureImage, GTK_ALIGN_CENTER);
   button = gtk_builder_get_object (builder, "btnCaptureFrame");
   g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
   
-  
   // --- Video Area
-  videoArea = (GtkDrawingArea*)gtk_builder_get_object (builder, "videoArea");
+  videoArea = (GtkImage*)gtk_builder_get_object (builder, "videoArea");
   gtk_widget_set_size_request ((GtkWidget*)videoArea, 500, 380);
-  //g_signal_connect (videoArea, "draw", (GCallback) video_area_expose, NULL);
+  g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
+
   
   //--- Monitor toggle & status
   statusLabel = (GtkLabel*)gtk_builder_get_object (builder, "statuslabel");
@@ -451,11 +588,14 @@ int main (int argc, char *argv[])
   //--- Settings
   button = gtk_builder_get_object (builder, "btnShowSettings");
   g_signal_connect (button, "clicked", G_CALLBACK (show_settings), NULL);
-  
   //--- Quit
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);
 
+
+  
+  
+  
   gtk_main ();
  
   return 0;

@@ -657,7 +657,7 @@ build/Debug/GNU-Linux/monitor.o: monitor.c main.h \
  /usr/include/ImageMagick-6/wand/mogrify.h \
  /usr/include/ImageMagick-6/wand/montage.h \
  /usr/include/ImageMagick-6/wand/stream.h \
- /usr/include/ImageMagick-6/wand/wand-view.h tdio.h
+ /usr/include/ImageMagick-6/wand/wand-view.h tdio.h shared.h
 
 main.h:
 
@@ -2054,3 +2054,5 @@ wand/magick-wand.h:
 /usr/include/ImageMagick-6/wand/wand-view.h:
 
 tdio.h:
+
+shared.h:

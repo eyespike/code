@@ -14,7 +14,7 @@
 #include "main.h"
 #include "wand/magick-wand.h"
 #include "tdio.h"
-
+#include "shared.h"
 
 // --- Constants
 //static const int MAX_CYCLES = 9000; //5 mins
@@ -54,9 +54,10 @@ uint8_t lepton_frame_packet[VOSPI_FRAME_SIZE];
 bool _monitorActive = false;
 
 
-static const uint8_t PUMP_START_DELAY_SECS = 4;
+static const uint8_t PUMP_START_DELAY_SECS = 1;
 static const uint8_t WATER_DETECTED_SECS = 4;
 static const uint8_t WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN = 4;
+static const uint8_t NOTIFCATION_SENT_DELAY_SECS = 4;
 
 static bool pump_started = false;
 static bool water_detected = false;
@@ -78,9 +79,19 @@ gboolean set_status_monitor_ended(gpointer data){
 
 gboolean set_status_monitor_status(gpointer data){
 	
+	
 	update_monitor_status_labels((char*)data);
 	return FALSE;
 }
+
+gboolean set_demo_status(gpointer data){
+	
+	
+	update_demo_status((uint8_t*)data);
+	return FALSE;
+}
+
+
 
 gboolean set_capture_image(gpointer data){
 	
@@ -496,6 +507,7 @@ void* f_monitor(void *arg)
 				if(!pump_started){
 					set_gpio_16(1);
 					pump_started = true;
+					g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
 				}
 				
 				results = read_lepton_array(currentIteration, lepton_reference_array, current_lepton_array);
@@ -508,19 +520,30 @@ void* f_monitor(void *arg)
 					if(!water_detected)
 					{
 						water_detected = true;
-						msg = "Water Detected! Looking for flooding.";
-						g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
+						//msg = "Water Detected! Looking for flooding.";
+						//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
+						
+						
+						g_main_context_invoke(mainc, set_demo_status, (gpointer)1);
+						
 					}
 					else if(water_detected && !water_detected_confirmed && (water_detected_cycle_count/30) > WATER_DETECTED_SECS)
 					{
 						water_detected_cycle_count = 0;
 						water_detected_confirmed = true;
 						msg = "Flooding confirmed! Commencing shutdown!";
-						g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
+						//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
+						g_main_context_invoke(mainc, set_demo_status, (gpointer)2);
 					}
 					else if(water_detected && water_detected_confirmed && (water_detected_cycle_count/30) > WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN)
 					{
-						pabort("Water Shutdown Complete!");
+						//pabort("Water Shutdown Complete!");
+						set_gpio_16(0);
+						g_main_context_invoke(mainc, set_demo_status, (gpointer)3);
+						
+						usleep(NOTIFCATION_SENT_DELAY_SECS * 1000000);
+						g_main_context_invoke(mainc, set_demo_status, (gpointer)4);
+						_active = false;
 					}
 
 				}
@@ -536,11 +559,15 @@ void* f_monitor(void *arg)
 	*/
 				else if(!results.water_detected)
 				{
+					if(water_detected_cycle_count > 0)
+						g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
+					
 					water_detected = false;
 					water_detected_confirmed = false;
 					water_detected_cycle_count = 0;
-					msg = "Monitoring";
-					g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
+					//g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
+					//msg = "Monitoring";
+					//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
 				}
 			}
 				

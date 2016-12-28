@@ -7,6 +7,7 @@
       <itemPath>MagickCore.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>monitor.h</itemPath>
+      <itemPath>shared.h</itemPath>
       <itemPath>tdio.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -58,6 +59,8 @@
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="shared.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="tdio.h" ex="false" tool="3" flavor2="0">
@@ -94,6 +97,8 @@
       <item path="monitor.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="shared.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include<string.h>
 #include<pthread.h>
 #include<stdlib.h>
@@ -10,7 +11,6 @@
 
 #include "monitor.h"
 #include "tdio.h"
-//#include "qdbmp.h"
 
 
 
@@ -22,6 +22,15 @@ GtkLabel *statusLabel;
 GtkButton *monitorButton;
 GtkImage *captureImage;
 GtkDrawingArea *videoArea;
+
+
+
+GtkImage *demoStart;
+GtkImage *demoPossibleFlooding;
+GtkImage *demoFloodingConfirmed;
+GtkImage *demoWaterShutOff;
+GtkImage *demoNotificationSent;
+
 
 unsigned char *videoFrameBlock;
 
@@ -58,53 +67,12 @@ void set_capture_image_from_current_array(GtkImage *image)
 }
 
 static void capture_image (GtkWidget *widget, gpointer *data)
-/*
-unsigned char* generate_image_from_pixels()
-{
-	int fd = connect_to_lepton();
-	while(transfer(fd)!=59){}
-	PixelIterator *iterator = NULL;
-	PixelWand **pixels = NULL;
-	int x,y,gray;
-	char hex[128];
-
-	MagickWandGenesis();
-
-	p_wand = NewPixelWand();
-	PixelSetColor(p_wand,"white");
-	m_wand = NewMagickWand();
-	// Create a 100x100 image with a default of white
-	MagickNewImage(m_wand,480,360,p_wand);
-	// Get a new pixel iterator 
-	iterator=NewPixelIterator(m_wand);
-	for(y=0;y<360;y++) {
-		// Get the next row of the image as an array of PixelWands
-		pixels=PixelGetNextIteratorRow(iterator,&x);
-		// Set the row of wands to a simple gray scale gradient
-		for(x=0;x<480;x++) {
-			gray = x*255/480;
-			sprintf(hex,"#%02x%02x%02x",gray,gray,gray);
-			PixelSetColor(pixels[x],hex);
-		}
-		// Sync writes the pixels back to the m_wand
-		PixelSyncIterator(iterator);
-	}
-	
-	unsigned char *block = (unsigned char*)malloc(480*360*3);
-	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
-	
-	// Clean up
-	iterator=DestroyPixelIterator(iterator);
-	DestroyMagickWand(m_wand);
-	MagickWandTerminus();
-
-	close(fd);
+/*********************************** Video **********************************/
+// <editor-fold>
+	MagickWand *m_wand = NULL;
+	PixelWand *p_wand = NULL;
+	return block;
 	set_capture_image_from_current_array(captureImage);
-}
-
-
-
-
 gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 //void video_area_expose (GtkWidget *da, BMP *bmp)
 {
@@ -164,6 +132,23 @@ gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 }
 */
 
+
+static void init_video_area (GtkWidget *da, gpointer data)
+{
+	GdkPixbuf *pix;
+	GError *err = NULL;
+	pix = gdk_pixbuf_new_from_file ("demo_video_placeholder.png", &err);
+	
+    cairo_t *cr;
+    cr = gdk_cairo_create (gtk_widget_get_window(da));
+    gdk_cairo_set_source_pixbuf(cr, pix, 0, 10);
+    cairo_paint(cr);
+    cairo_destroy (cr);
+	
+	return FALSE;
+}
+
+// </editor-fold>
 
 
 /*********************************** Calibration & Settings **********************************/
@@ -384,23 +369,65 @@ static void capture_image (GtkWidget *widget, gpointer *data)
 /*********************************** Monitor **********************************/
 // <editor-fold>
 
+//enum DemoStatus {START, POSSIBLEFLOOD, FLOODCONFIRMED, WATEROFF, NOTIFCATIONSENT};
+
+void update_demo_status(uint8_t status)
+{
+	switch(status){
+		
+		case 0 :
+			gtk_image_set_from_file (demoStart, "demo_start_active.png");
+			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_off.png");
+			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_off.png");
+			break;
+			
+		case 1 :
+			gtk_image_set_from_file (demoStart, "demo_start_on.png");
+			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_active.png");
+			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_off.png");
+			break;
+			
+		case 2 :
+			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_on.png");
+			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_active.png");
+			break;
+			
+		case 3 :
+			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_on.png");
+			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_active.png");
+			break;
+			
+		case 4 :
+			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_on.png");
+			gtk_image_set_from_file (demoNotificationSent, "demo_notification_sent_active.png");
+			break;
+	
+	}
+}
+
+
+
 void update_monitor_status_labels(char *labelValue)
 {	
 	if(!_active){
+/*
 		if(labelValue == NULL)
 			gtk_label_set_text(statusLabel, "Inactive");
 		else
 			gtk_label_set_text(statusLabel, labelValue);
+*/
 		
-		gtk_button_set_label(monitorButton, "Monitor");
+		gtk_button_set_label(monitorButton, "Start");
 		
 		set_gpio_12(0);
 		set_gpio_16(0);
 	} else {
+/*
 		if(labelValue == NULL)
 			gtk_label_set_text(statusLabel, "Monitoring");
 		else
 			gtk_label_set_text(statusLabel, labelValue);
+*/
 		
 		gtk_button_set_label(monitorButton, "Stop");
 	}
@@ -426,31 +453,7 @@ static void toggle_monitor (GtkWidget *widget, gpointer *data)
 
 // </editor-fold>
 
-
-void set_background_image(GtkWidget *window)
-{
-
-	GdkPixbuf *pix;
-    GError *err = NULL;
-    /* Create pixbuf */
-    pix = gdk_pixbuf_new_from_file("demobg_small.png", &err);
-    if(err)
-    {
-        printf("Error : %s\n", err->message);
-        g_error_free(err);
-    }
-    cairo_t *cr;
-    cr = gdk_cairo_create (gtk_widget_get_window(window));
-    gdk_cairo_set_source_pixbuf(cr, pix, 0, 0);
-    cairo_paint(cr);
-    cairo_fill (cr);
-    cairo_destroy (cr);
-	
-}
-
-
-
-
+/*
 int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
@@ -527,9 +530,8 @@ int main (int argc, char *argv[])
  
   return 0;
 }
+*/
 
-
-/*
 int main( int argc, char *argv[])
 {
     GtkWidget *window;
@@ -537,30 +539,73 @@ int main( int argc, char *argv[])
     GtkWidget *image;
     GtkWidget *button;
 	
+	// Initialize the IO
+	initializeGpio();
+	
 	gtk_init(&argc, &argv);
-
+	mainc = g_main_context_default();
+	
+	
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_default_size(GTK_WINDOW(window), 480, 270);
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    gtk_window_fullscreen((GtkWindow*)window);
+	//gtk_window_set_default_size(GTK_WINDOW(window), 480, 270);
+    //gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 
     layout = gtk_layout_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER (window), layout);
     gtk_widget_show(layout);
 
-    image = gtk_image_new_from_file("demo_bg_small.png");
+	//-- Background
+    image = gtk_image_new_from_file("demo_background.png");
     gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
 
-	captureImage = gtk_image_new_from_file("capture.bmp");
-    gtk_layout_put(GTK_LAYOUT(layout), captureImage, 200, 100);
+	// -- Logo
+	image = gtk_image_new_from_file("demo_logo.png");
+    gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
+		
+	// -- Start
+	demoStart = (GtkImage*)gtk_image_new_from_file("demo_start_off.png");
+    gtk_layout_put(GTK_LAYOUT(layout), demoStart, 0, 401);
+	
+	// -- Possible Flooding
+	demoPossibleFlooding = (GtkImage*)gtk_image_new_from_file("demo_possible_flooding_off.png");
+    gtk_layout_put(GTK_LAYOUT(layout), demoPossibleFlooding, 0, 515);
+	
+	// -- Flooding Confirmed
+	demoFloodingConfirmed = (GtkImage*)gtk_image_new_from_file("demo_flooding_confirmed_off.png");
+    gtk_layout_put(GTK_LAYOUT(layout), demoFloodingConfirmed, 0, 629);
+	
+	// -- Water Shutoff
+	demoWaterShutOff = (GtkImage*)gtk_image_new_from_file("demo_water_shutoff_off.png");
+    gtk_layout_put(GTK_LAYOUT(layout), demoWaterShutOff, 0, 743);
+	
+	// -- Notification Sent
+	demoNotificationSent = (GtkImage*)gtk_image_new_from_file("demo_notification_sent_off.png");
+    gtk_layout_put(GTK_LAYOUT(layout), demoNotificationSent, 0, 857);
 	
 	
-    //button = gtk_button_new_with_label("Button");
-	button = gtk_image_new_from_file("capture.bmp");
+	// --- Video Area
+	videoArea = (GtkDrawingArea*)gtk_drawing_area_new ();
+	gtk_widget_set_size_request ((GtkWidget*)videoArea, 757, 568);
+	gtk_layout_put(GTK_LAYOUT(layout), videoArea, 854, 259);
+	g_signal_connect (videoArea, "draw", (GCallback) init_video_area, NULL);
+	videoFrameBlock = (unsigned char*)malloc(757*568*3);
+	
+	
+	//--- Monitor toggle & status
+	monitorButton = gtk_button_new_with_label("Start");
+	gtk_layout_put(GTK_LAYOUT(layout), monitorButton, 150, 50);
+	g_signal_connect (monitorButton, "clicked", G_CALLBACK (toggle_monitor), NULL);
+	
+	
+	
+    button = gtk_button_new_with_label("Quit");
+	//button = gtk_image_new_from_file("capture.bmp");
     gtk_layout_put(GTK_LAYOUT(layout), button, 50, 50);
     //gtk_widget_set_size_request(button, 80, 60);
 	//gtk_button_set_image(button, gtk_image_new_from_file("capture.bmp"));
+	g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);
 	
-	g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
 
     g_signal_connect_swapped(G_OBJECT(window), "destroy",
     G_CALLBACK(gtk_main_quit), NULL);
@@ -571,4 +616,3 @@ int main( int argc, char *argv[])
 
     return 0;
 }
-*/

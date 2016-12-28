@@ -108,7 +108,6 @@ unsigned char* generate_image_from_pixels()
 gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 //void video_area_expose (GtkWidget *da, BMP *bmp)
 {
-<<<<<<< 7f786c933385b943ba210ee6be6822136932b078
 	
 	//(void)event; void(data);
 	GdkPixbuf *pix;
@@ -116,20 +115,18 @@ gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 		
 	IplImage *ocvImage;
 	//ocvImage = cvLoadImage("no-video.gif",1);
-	unsigned char *block = (unsigned char*)malloc(480*360*3);
+	//unsigned char *block = (unsigned char*)data;
 	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
-=======
-	GdkPixbuf *pix;
-		
-	pix = gdk_pixbuf_new_from_data (
-			(guchar*)videoFrameBlock,
->>>>>>> Just some cleanup.
 			GDK_COLORSPACE_RGB,
 			FALSE,
+<<<<<<< 446ff5302ffac35cbdc84c0a7e9d7af618f0b57e
 			ocvImage->depth,
 			ocvImage->width,
 			ocvImage->height,
 			(ocvImage->widthStep),
+=======
+			8, 757, 568, (757*3),
+>>>>>>> Added the gpio signal switches to the detection proccess.
 			NULL,
 			NULL);
 	//if(data == NULL){
@@ -156,14 +153,13 @@ gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 	//}
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
+    //    cr = gdk_cairo_create (da->window);
     gdk_cairo_set_source_pixbuf(cr, pix, 0, 10);
     cairo_paint(cr);
+    //    cairo_fill (cr);
     cairo_destroy (cr);
 	
-<<<<<<< 7f786c933385b943ba210ee6be6822136932b078
-	memset(block, 0, sizeof(block));
-=======
->>>>>>> Just some cleanup.
+	//memset(block, 0, sizeof(block));
 	return FALSE;
 	
 	
@@ -401,6 +397,9 @@ void update_monitor_status_labels(char *labelValue)
 			gtk_label_set_text(statusLabel, labelValue);
 		
 		gtk_button_set_label(monitorButton, "Monitor");
+		
+		set_gpio_12(0);
+		set_gpio_16(0);
 	} else {
 		if(labelValue == NULL)
 			gtk_label_set_text(statusLabel, "Monitoring");
@@ -507,8 +506,8 @@ int main (int argc, char *argv[])
   
   // --- Video Area
   videoArea = (GtkDrawingArea*)gtk_builder_get_object (builder, "videoArea");
-  gtk_widget_set_size_request ((GtkWidget*)videoArea, 1110, 831);
-  videoFrameBlock = (unsigned char*)malloc(1110*831*3);
+  gtk_widget_set_size_request ((GtkWidget*)videoArea, 757, 568);
+  videoFrameBlock = (unsigned char*)malloc(757*568*3);
   
   
   //--- Monitor toggle & status

@@ -25,45 +25,49 @@ void initializeGpio()
     pinMode(pin12, OUTPUT);     // Set regular LED as output
 	pinMode(pin16, OUTPUT);     // Set regular LED as output
 	
-	// make sure they are off
-    pinMode(ledPin, OUTPUT);     // Set regular LED as output
-    pinMode(butPin, INPUT);      // Set button as INPUT
+<<<<<<< 446ff5302ffac35cbdc84c0a7e9d7af618f0b57e
+	//pinMode(pwmPin, PWM_OUTPUT); // Set PWM LED as PWM output
+    pinMode(pin12, OUTPUT);     // Set regular LED as output
+	pinMode(pin16, OUTPUT);     // Set regular LED as output
 /*
     pinMode(butPin, INPUT);      // Set button as INPUT
     pullUpDnControl(butPin, PUD_UP); // Enable pull-up resistor on button
 */
 }
 
-int gpio_testing(GtkWidget *widget, bool *turnOn)
+int toggle_gpio_12(GtkWidget *widget, gpointer *data)
 {
     
 	// Regular pin out
-	int state = digitalRead(ledPin);
+	int state = digitalRead(pin12);
+		
+	if(state == 0)
+		digitalWrite(pin12, HIGH); // Turn LED ON
+	else
+		digitalWrite(pin12, LOW); // Turn LED ON
+=======
+	// make sure they are off
+	digitalWrite(pin12, LOW);
+	digitalWrite(pin16, LOW);
+}
+
+int set_gpio_12(int state)
+{
+    
+	// Regular pin out
+	//int state = digitalRead(pin12);
 		
 	if(state == 1)
 		digitalWrite(pin12, HIGH); // Turn LED ON
 	else
 		digitalWrite(pin12, LOW); // Turn LED ON
 
+>>>>>>> Added the gpio signal switches to the detection proccess.
 
 	return 0;
 }
 
-int set_gpio_16(int state)
-{
-    
-	// Regular pin out
-	//int state = digitalRead(pin16);
-		
-	if(state == 1)
-		digitalWrite(pin16, HIGH); // Turn LED ON
-	else
-		digitalWrite(pin16, LOW); // Turn LED ON
-
-
-	return 0;
-}
-
+<<<<<<< 446ff5302ffac35cbdc84c0a7e9d7af618f0b57e
 int toggle_gpio_16(GtkWidget *widget, gpointer *data)
 {
     
@@ -71,6 +75,15 @@ int toggle_gpio_16(GtkWidget *widget, gpointer *data)
 	int state = digitalRead(pin16);
 		
 	if(state == 0)
+=======
+int set_gpio_16(int state)
+{
+    
+	// Regular pin out
+	//int state = digitalRead(pin16);
+		
+	if(state == 1)
+>>>>>>> Added the gpio signal switches to the detection proccess.
 		digitalWrite(pin16, HIGH); // Turn LED ON
 	else
 		digitalWrite(pin16, LOW); // Turn LED ON

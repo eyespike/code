@@ -119,8 +119,8 @@ gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
 			GDK_COLORSPACE_RGB,
 			FALSE,
-			ocvImage->depth,
-			ocvImage->width,
+			//8, 480, 360, (480*3),
+			8, 1110, 831, (1110*3),
 			ocvImage->height,
 			(ocvImage->widthStep),
 			NULL,
@@ -393,6 +393,9 @@ void update_monitor_status_labels(char *labelValue)
 			gtk_label_set_text(statusLabel, labelValue);
 		
 		gtk_button_set_label(monitorButton, "Monitor");
+		
+		set_gpio_12(0);
+		set_gpio_16(0);
 	} else {
 		if(labelValue == NULL)
 			gtk_label_set_text(statusLabel, "Monitoring");
@@ -499,8 +502,8 @@ int main (int argc, char *argv[])
   
   // --- Video Area
   videoArea = (GtkDrawingArea*)gtk_builder_get_object (builder, "videoArea");
-  gtk_widget_set_size_request ((GtkWidget*)videoArea, 1110, 831);
-  videoFrameBlock = (unsigned char*)malloc(1110*831*3);
+  gtk_widget_set_size_request ((GtkWidget*)videoArea, 757, 568);
+  videoFrameBlock = (unsigned char*)malloc(757*568*3);
   
   
   //--- Monitor toggle & status

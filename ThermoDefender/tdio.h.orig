@@ -20,7 +20,13 @@ extern "C" {
 
 	
 void initializeGpio();	
-int gpio_testing(GtkWidget *widget, bool *turnOn);
+<<<<<<< 446ff5302ffac35cbdc84c0a7e9d7af618f0b57e
+int toggle_gpio_12(GtkWidget *widget, gpointer *data);
+int toggle_gpio_16(GtkWidget *widget, gpointer *data);
+=======
+int set_gpio_12(int state);
+int set_gpio_16(int state);
+>>>>>>> Added the gpio signal switches to the detection proccess.
 
 
 

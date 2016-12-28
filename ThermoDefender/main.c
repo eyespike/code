@@ -115,7 +115,7 @@ gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
 		
 	IplImage *ocvImage;
 	//ocvImage = cvLoadImage("no-video.gif",1);
-	unsigned char *block = (unsigned char*)malloc(480*360*3);
+	//unsigned char *block = (unsigned char*)data;
 	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
 			GDK_COLORSPACE_RGB,
 			FALSE,
@@ -155,7 +155,7 @@ gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
     //    cairo_fill (cr);
     cairo_destroy (cr);
 	
-	memset(block, 0, sizeof(block));
+	//memset(block, 0, sizeof(block));
 	return FALSE;
 	
 	
@@ -477,16 +477,7 @@ int main (int argc, char *argv[])
   main_window = (GtkWindow*)window;
   //gtk_window_fullscreen(main_window);
   
-  
-  // -- Set the background image of the window.
-  //set_background_image((GtkWidget*)main_window);
-  
-  
-  //layout = gtk_builder_get_object (builder, "mainLayout");
-  //gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)layout);
-  //bgImage = gtk_image_new_from_file("demo_bg_small.png");
-  //gtk_layout_put(GTK_LAYOUT(layout), bgImage, 0, 0);
-  
+ 
   
   // --- Grid
   grid = gtk_builder_get_object (builder, "grid");
@@ -510,8 +501,7 @@ int main (int argc, char *argv[])
   videoArea = (GtkDrawingArea*)gtk_builder_get_object (builder, "videoArea");
   gtk_widget_set_size_request ((GtkWidget*)videoArea, 1110, 831);
   videoFrameBlock = (unsigned char*)malloc(1110*831*3);
-  //g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
-
+  
   
   //--- Monitor toggle & status
   statusLabel = (GtkLabel*)gtk_builder_get_object (builder, "statuslabel");

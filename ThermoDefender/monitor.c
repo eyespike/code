@@ -22,9 +22,9 @@ static const int MAX_CYCLES = 3600; //1 mins
 
 //static const int CYCLES_TO_RESET_BASE = 240;
 
-int water_tc_differential = -35;
+int water_tc_differential = -45;
 int body_tc_differential = 120;
-int fire_tc_differential = 500;
+int fire_tc_differential = 1000;
 int water_min_detected_pc = 300;
 int body_min_detected_pc = 1000;
 int fire_min_detected_pc = 100;
@@ -37,15 +37,7 @@ typedef struct {
 	bool water_detected;
 	bool body_detected;
 	bool fire_detected;
-	int minValue;
-	int maxValue;
 } DetectionResults;
-
-typedef struct {
-	int imageArray[60][80];
-	int minValue;
-	int maxValue;
-} videoImageData;
 
 static const char *device = "/dev/spidev0.1";
 static uint8_t mode;
@@ -159,10 +151,6 @@ void convert_array_to_image_data ()
 	
 	//MagickResizeImage(m_wand,480,360,LanczosFilter,1);
 	MagickResizeImage(m_wand,1110,831,LanczosFilter,1);
-	
-	//unsigned char *block = (unsigned char*)malloc(480*360*3);
-	//MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
-	//unsigned char *block = (unsigned char*)malloc(1110*831*3);
 	MagickExportImagePixels(m_wand,0,0,1110,831, "RGB", CharPixel, videoFrameBlock);
 	
 	// Clean up
@@ -173,44 +161,22 @@ void convert_array_to_image_data ()
 	memset(video_array, 0, sizeof(video_array));
 	
 	creatingImage = false;	
-	
-	//return block;
+
 	//printf("Palette size: %d\n", sizeof(colormap_rainbow) /sizeof(*colormap_rainbow));
 }
 
 
 gboolean set_video_frame(){
-//gboolean set_video_frame(videoImageData *viData){
-	
-	//videoImageData *viData = (videoImageData*)data;
-	
-	//printf("Max: %d\n", viData->maxValue);
-	//printf("Min: %d\n", viData->minValue);
-	
-	//int videoArray[60][80] = (int*)data;
-	
-	//unsigned char * block = convert_array_to_image_data(viData->minValue, viData->maxValue);
-	//unsigned char * block = convert_array_to_image_data();
 	convert_array_to_image_data();
-	//video_area_expose ((GtkWidget*)videoArea, block);
 	video_area_expose ((GtkWidget*)videoArea, NULL);
 	return FALSE;
 }
 
-static void que_video_frame(int tcArray[60][80],int minValue, int maxValue)
+static void que_video_frame(int tcArray[60][80])
 {
 	if(!creatingImage){
-		
-		//videoImageData viData;
-		//viData.imageArray = current_lepton_array;
-		//viData.maxValue = maxValue;
-		//viData.minValue = minValue;
-		
 		// Copy the array
 		memcpy(video_array, tcArray, sizeof(int) * 60 * 80);
-		
-		//unsigned char * block = convert_array_to_image_data(minValue, maxValue);
-		//g_main_context_invoke(mainc, set_video_frame, tcArray);
 		g_main_context_invoke(mainc, set_video_frame, NULL);
 	}
 }
@@ -221,6 +187,8 @@ static void pabort(const char *s)
 	
 	_active = false;
 	_monitorActive = false;
+	
+	que_video_frame(current_lepton_array);
 	
 	// Call main thread to update the GUI
 	g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
@@ -393,8 +361,6 @@ DetectionResults read_lepton_array(int currentIteration, int referenceArray[60][
 	dResults.water_detected = false;
 	dResults.body_detected = false;
 	dResults.fire_detected = false;
-	dResults.minValue = INT_MAX;
-	dResults.maxValue = 0;
 	
 	// Set base reference array is applicable
 	if(currentIteration == 1)
@@ -431,12 +397,7 @@ DetectionResults read_lepton_array(int currentIteration, int referenceArray[60][
 	{
 		for(j=0;j<80;j++){
 			
-			if(compareArray[i][j] < dResults.minValue)
-				dResults.minValue = compareArray[i][j];
-			if(compareArray[i][j] > dResults.maxValue)
-				dResults.maxValue = compareArray[i][j];
-			
-			
+		
 			tc_diff = abs(compareArray[i][j] - referenceArray[i][j]);
 						
 			if(water_tc_diff_is_negative && compareArray[i][j] - referenceArray[i][j] < 0 && tc_diff * -1 <= water_tc_differential) // Water diff is negative
@@ -500,7 +461,6 @@ void* f_monitor(void *arg)
 		currentIteration ++;
 		if(currentIteration > MAX_CYCLES){
 			_active = !_active;
-		//} else if(!creatingImage) {
 		} else {
 			
 			fd = connect_to_lepton();
@@ -512,23 +472,21 @@ void* f_monitor(void *arg)
 			if(status_value < 0)
 				printf("Error - Could not close SPI device");
 
-		
+			// Send video frame
+			if(currentIteration % 2 ==0){
+				que_video_frame(current_lepton_array);
+			}
+			
 			DetectionResults results = read_lepton_array(currentIteration, lepton_reference_array, current_lepton_array);
 						
 			if(results.water_detected)
 			{
-				
-				//printf("Water detected: %d\n", results.water_detected);
-				//printf("Body detected: %d\n", results.body_detected);
-				//printf("Fire detected: %d\n", results.fire_detected);
-				
 				water_detected_cycle_count++;
 				
 				// First detection?
 				if(!water_detected)
 				{
 					water_detected = true;
-					//g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 					msg = "Water Detected! Looking for flooding.";
 					g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
 				}
@@ -546,18 +504,16 @@ void* f_monitor(void *arg)
 				}
 				
 			}
+/*
 			else if(results.fire_detected)
 			{
-				
-				//printf("Water detected: %d\n", results.water_detected);
-				//printf("Body detected: %d\n", results.body_detected);
-				//printf("Fire detected: %d\n", results.fire_detected);
 				
 				//g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 				pabort("Fire Detected");
 				//char *s = "Fire Detected!";
 				//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
 			}
+*/
 			else if(!results.water_detected)
 			{
 				water_detected = false;
@@ -566,46 +522,17 @@ void* f_monitor(void *arg)
 				msg = "Monitoring";
 				g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)msg);
 			}
-/*
-			else if(results.body_detected){
-				
-				printf("Water detected: %d\n", results.water_detected);
-				printf("Body detected: %d\n", results.body_detected);
-				printf("Fire detected: %d\n", results.fire_detected);
-				
-				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
-				pabort("Body heat Detected");
-				//char *s = "Body heat Detected!";
-				//g_main_context_invoke(mainc, set_status_monitor_status, (gpointer)s);
-			}
-*/
-			
-			
-			
 			
 			// Update the image if first iteration
 			if(currentIteration == 1){
 				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 			}
 			
-			if(currentIteration % 8 ==0){
-				que_video_frame(current_lepton_array, results.minValue, results.maxValue);
-			}
-			
-			// Timer value very important
-			//usleep(20500); // roughly 30 FPS
-			//usleep(20400); // roughly 30 FPS
-			//usleep(20300); // roughly 30 FPS
-			//usleep(20600); // roughly 30 FPS Worked well at 480x360
-			
-			//usleep(20300); // roughly 30 FPS
 			usleep(20200); // roughly 30 FPS
 						
 			if(currentIteration % 30 == 0)
 				printf("Second %d\n", currentIteration / 30);
 			
-		//} else {
-		//	usleep(200);
 		}
 	}
 		
@@ -639,12 +566,9 @@ int get_tc_diff_from_array(int min_diff, int min_pixel_count, int referenceArray
 			{
 				detected_pixel_count++;
 				total_tc_above_min += compareArray[i][j] - referenceArray[i][j];
-				//printf("Diff: %d\n", compareArray[i][j] - referenceArray[i][j]);
 			}
 		}
 	}	
-
-	//printf("Pixel Count: %d\n", detected_pixel_count);
 	
 	if(detected_pixel_count >= min_pixel_count)
 		return (int) total_tc_above_min / detected_pixel_count;

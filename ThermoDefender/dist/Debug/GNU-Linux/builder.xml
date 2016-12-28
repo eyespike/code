@@ -258,7 +258,7 @@
             <property name="top-attach">6</property>
 				  </packing>
 				</child>
-				<child>
+				<!--<child>
 				  <object id="statuslabel" class="GtkLabel">
 					<property name="visible">True</property>
 					<property name="label">Inactive</property>
@@ -266,6 +266,16 @@
 				  <packing>
 					<property name="left-attach">2</property>
             <property name="top-attach">6</property>
+				  </packing>
+				</child>-->
+				<child>
+				  <object id="statuslabel" class="GtkLabel">
+					<property name="visible">True</property>
+					<property name="label">Inactive</property>
+				  </object>
+				  <packing>
+					<property name="left-attach">3</property>
+					<property name="top-attach">0</property>
 				  </packing>
 				</child>
 				

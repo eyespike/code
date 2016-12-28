@@ -23,7 +23,7 @@ GtkButton *monitorButton;
 GtkImage *captureImage;
 GtkDrawingArea *videoArea;
 
-
+unsigned char *videoFrameBlock;
 
 
  typedef struct {
@@ -106,29 +106,17 @@ unsigned char* generate_image_from_pixels()
 
 
 gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
-void video_area_expose (GtkWidget *da, BMP *bmp)
+//void video_area_expose (GtkWidget *da, BMP *bmp)
 {
 	
 	//(void)event; void(data);
 	GdkPixbuf *pix;
 	GError *err = NULL;
 		
-/*
-	MagickWand *m_wand = NULL;
-
-	MagickWandGenesis();
-
-	// Create a wand
-	m_wand = NewMagickWand();
-
-	// Read the input image
-	MagickReadImage(m_wand,"no-video.gif");
-	
 	IplImage *ocvImage;
 	//ocvImage = cvLoadImage("no-video.gif",1);
-	
-	pix = gdk_pixbuf_new_from_data (
-			(guchar*)ocvImage->imageData,
+	unsigned char *block = (unsigned char*)malloc(480*360*3);
+	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
 			GDK_COLORSPACE_RGB,
 			FALSE,
 			ocvImage->depth,
@@ -137,15 +125,9 @@ void video_area_expose (GtkWidget *da, BMP *bmp)
 			(ocvImage->widthStep),
 			NULL,
 			NULL);
-	
-	
 	//if(data == NULL){
 		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
-	// Tidy up
- 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
-
-	MagickWandTerminus();
-		
+	
 	unsigned char *block = (unsigned char*)data;
 	//{
 		//
@@ -383,6 +365,7 @@ void set_capture_image_from_current_array(GtkImage *image)
 	snprintf(scaleCommand, sizeof scaleCommand, "convert %s -resize 600%% %s", imageName, largeImageName);
 	system(scaleCommand);
 	
+	//gtk_image_set_from_file (image, largeImageName);	
 	gtk_image_set_from_file (image, largeImageName);	
 }
 
@@ -441,43 +424,26 @@ static void toggle_monitor (GtkWidget *widget, gpointer *data)
 // </editor-fold>
 
 
-
-/*
-void resize_image(void)
+void set_background_image(GtkWidget *window)
 {
-	MagickWand *m_wand = NULL;
 
-	int width, height;
+	GdkPixbuf *pix;
+    GError *err = NULL;
+    /* Create pixbuf */
+    pix = gdk_pixbuf_new_from_file("demobg_small.png", &err);
+    if(err)
+    {
+        printf("Error : %s\n", err->message);
+        g_error_free(err);
+    }
+    cairo_t *cr;
+    cr = gdk_cairo_create (gtk_widget_get_window(window));
+    gdk_cairo_set_source_pixbuf(cr, pix, 0, 0);
+    cairo_paint(cr);
+    cairo_fill (cr);
+    cairo_destroy (cr);
 	
-	MagickWandGenesis();
-
-	// Create a wand
-	m_wand = NewMagickWand();
-
-	// Read the input image
-	MagickReadImage(m_wand,"capture.bmp");
-	
-	width = MagickGetImageWidth(m_wand) * 6;
-	height = MagickGetImageHeight(m_wand) * 6;
-	
-	MagickResizeImage(m_wand,width,height,LanczosFilter,1);
-	
-	MagickSetImageCompressionQuality(m_wand,95);
-	
-	
-	// write it 
-	MagickWriteImage(m_wand,"capture.jpg");
-
-	// Tidy up
- 	if(m_wand) m_wand = DestroyMagickWand(m_wand);
-
-	MagickWandTerminus();
 }
-*/
-
-
-
-
 
 
 
@@ -511,11 +477,15 @@ int main (int argc, char *argv[])
   main_window = (GtkWindow*)window;
   //gtk_window_fullscreen(main_window);
   
+  
   // -- Set the background image of the window.
+  //set_background_image((GtkWidget*)main_window);
+  
+  
   //layout = gtk_builder_get_object (builder, "mainLayout");
   //gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)layout);
-  //bgImage = gtk_image_new_from_file("demo_bg.png");
-  //gtk_layout_put(GTK_LAYOUT(layout), bgImage, 0, 0);  
+  //bgImage = gtk_image_new_from_file("demo_bg_small.png");
+  //gtk_layout_put(GTK_LAYOUT(layout), bgImage, 0, 0);
   
   
   // --- Grid
@@ -537,8 +507,9 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
   
   // --- Video Area
-  videoArea = (GtkImage*)gtk_builder_get_object (builder, "videoArea");
+  videoArea = (GtkDrawingArea*)gtk_builder_get_object (builder, "videoArea");
   gtk_widget_set_size_request ((GtkWidget*)videoArea, 1110, 831);
+  videoFrameBlock = (unsigned char*)malloc(1110*831*3);
   //g_signal_connect (videoArea, "draw", G_CALLBACK (video_area_expose), NULL);
 
   
@@ -563,3 +534,48 @@ int main (int argc, char *argv[])
  
   return 0;
 }
+
+
+/*
+int main( int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *layout;
+    GtkWidget *image;
+    GtkWidget *button;
+	
+	gtk_init(&argc, &argv);
+
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_default_size(GTK_WINDOW(window), 480, 270);
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+
+    layout = gtk_layout_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER (window), layout);
+    gtk_widget_show(layout);
+
+    image = gtk_image_new_from_file("demo_bg_small.png");
+    gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
+
+	captureImage = gtk_image_new_from_file("capture.bmp");
+    gtk_layout_put(GTK_LAYOUT(layout), captureImage, 200, 100);
+	
+	
+    //button = gtk_button_new_with_label("Button");
+	button = gtk_image_new_from_file("capture.bmp");
+    gtk_layout_put(GTK_LAYOUT(layout), button, 50, 50);
+    //gtk_widget_set_size_request(button, 80, 60);
+	//gtk_button_set_image(button, gtk_image_new_from_file("capture.bmp"));
+	
+	g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
+
+    g_signal_connect_swapped(G_OBJECT(window), "destroy",
+    G_CALLBACK(gtk_main_quit), NULL);
+
+    gtk_widget_show_all(window);
+
+    gtk_main();
+
+    return 0;
+}
+*/

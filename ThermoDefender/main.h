@@ -25,9 +25,11 @@ extern GtkLabel *statusLabel;
 extern GtkButton *monitorButton;
 extern GtkImage *captureImage;
 extern GtkDrawingArea *videoArea;
+extern unsigned char *videoFrameBlock;
 
 void update_monitor_status_labels();
 void set_capture_image_from_current_array(GtkImage *image);
+gboolean video_area_expose (GtkWidget *da, gpointer data);
 //gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data);
 //void video_area_expose (GtkWidget *da, BMP *bmp);
 

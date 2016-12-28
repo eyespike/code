@@ -8,7 +8,7 @@
 	
 	<child>
 	
-<!--	  <object id="mainLayout" class="GtkLayout">
+	  <!--<object id="mainLayout" class="GtkLayout">
 		<property name="visible">True</property>
 		<child> -->
 	
@@ -334,11 +334,11 @@
 				</child>
 			  </object>
 			  <packing>
-			  </packing> -->
+			  </packing>
 			  
 			  
 			  
-	<!--	  </child>
+		  <!--</child>
 	  </object>
 	<packing>
 	</packing>-->

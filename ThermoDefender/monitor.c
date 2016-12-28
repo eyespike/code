@@ -31,6 +31,7 @@ int fire_min_detected_pc = 100;
 bool water_tc_diff_is_negative = false;
 static int lepton_reference_array[60][80];
 static int current_lepton_array[60][80];
+static int video_array[60][80];
 
 typedef struct {
 	bool water_detected;
@@ -40,6 +41,11 @@ typedef struct {
 	int maxValue;
 } DetectionResults;
 
+typedef struct {
+	int imageArray[60][80];
+	int minValue;
+	int maxValue;
+} videoImageData;
 
 static const char *device = "/dev/spidev0.1";
 static uint8_t mode;
@@ -90,12 +96,27 @@ gboolean set_capture_image(gpointer data){
 
 
 
-unsigned char* convert_array_to_image_data (int tcArray[60][80], int minValue, int maxValue)
+//unsigned char* convert_array_to_image_data (int minValue, int maxValue)
+//unsigned char* convert_array_to_image_data ()
+void convert_array_to_image_data ()
 {
 	creatingImage = true;
+
+	int minValue = INT_MAX;
+	int maxValue = 0;
+	int i,j;
+		
+		for(i=0;i<PACKETS_PER_FRAME;i++)
+		{
+			for(j=0;j<80;j++){
+				if(video_array[i][j] < minValue)
+					minValue = video_array[i][j];
+				if(video_array[i][j] > maxValue)
+					maxValue = video_array[i][j];
+			}
+		}
 	
 	uint16_t pixValue;
-	
 	float diff = maxValue - minValue;
 	float scale = 255/diff;
 	
@@ -125,7 +146,7 @@ unsigned char* convert_array_to_image_data (int tcArray[60][80], int minValue, i
 		pixels=PixelGetNextIteratorRow(iterator,&x);
 		// Set the row of wands to a simple gray scale gradient
 		for(x=0;x<80;x++) {
-			pixValue = (tcArray[y][x] - minValue) * scale;
+			pixValue = (video_array[y][x] - minValue) * scale;
 			if(pixValue > 0)
 				pixValue = pixValue - (pixValue % 3);
 			
@@ -141,35 +162,56 @@ unsigned char* convert_array_to_image_data (int tcArray[60][80], int minValue, i
 	
 	//unsigned char *block = (unsigned char*)malloc(480*360*3);
 	//MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
-	unsigned char *block = (unsigned char*)malloc(1110*831*3);
-	MagickExportImagePixels(m_wand,0,0,1110,831, "RGB", CharPixel, block);
+	//unsigned char *block = (unsigned char*)malloc(1110*831*3);
+	MagickExportImagePixels(m_wand,0,0,1110,831, "RGB", CharPixel, videoFrameBlock);
 	
 	// Clean up
 	iterator=DestroyPixelIterator(iterator);
 	DestroyMagickWand(m_wand);
 	MagickWandTerminus();
 
-		
+	memset(video_array, 0, sizeof(video_array));
+	
 	creatingImage = false;	
 	
-	return block;
+	//return block;
 	//printf("Palette size: %d\n", sizeof(colormap_rainbow) /sizeof(*colormap_rainbow));
 }
 
 
-gboolean set_video_frame(gpointer data){
-	//video_area_expose ((GtkWidget*)videoArea, NULL, data);
-	video_area_expose ((GtkWidget*)videoArea, (unsigned char*)data);
+gboolean set_video_frame(){
+//gboolean set_video_frame(videoImageData *viData){
+	
+	//videoImageData *viData = (videoImageData*)data;
+	
+	//printf("Max: %d\n", viData->maxValue);
+	//printf("Min: %d\n", viData->minValue);
+	
+	//int videoArray[60][80] = (int*)data;
+	
+	//unsigned char * block = convert_array_to_image_data(viData->minValue, viData->maxValue);
+	//unsigned char * block = convert_array_to_image_data();
+	convert_array_to_image_data();
+	//video_area_expose ((GtkWidget*)videoArea, block);
+	video_area_expose ((GtkWidget*)videoArea, NULL);
 	return FALSE;
 }
 
-static void que_video_frame(int tcArray[60][80], int minValue, int maxValue)
+static void que_video_frame(int tcArray[60][80],int minValue, int maxValue)
 {
 	if(!creatingImage){
-		unsigned char * block = convert_array_to_image_data(tcArray, minValue, maxValue);
-		g_main_context_invoke(mainc, set_video_frame, (gpointer)block);
-	} else {
-		printf("Creating Image\n");
+		
+		//videoImageData viData;
+		//viData.imageArray = current_lepton_array;
+		//viData.maxValue = maxValue;
+		//viData.minValue = minValue;
+		
+		// Copy the array
+		memcpy(video_array, tcArray, sizeof(int) * 60 * 80);
+		
+		//unsigned char * block = convert_array_to_image_data(minValue, maxValue);
+		//g_main_context_invoke(mainc, set_video_frame, tcArray);
+		g_main_context_invoke(mainc, set_video_frame, NULL);
 	}
 }
 
@@ -271,9 +313,6 @@ int transfer(int fd)
 	if(((lepton_frame_packet[0]&0xf) != 0x0f))
 	{
 		frame_number = lepton_frame_packet[1];
-		
-			
-		
 		if(frame_number < PACKETS_PER_FRAME )
 		{
 			for(i=0;i<80;i++)
@@ -286,10 +325,7 @@ int transfer(int fd)
 			printf("Misaligned packet detected. Pausing.\n");
 			usleep(200000);
 			return -1;			
-		
 		}
-	} else {
-		printf("Not capturing frame... current frame:%d\n", frame_number);
 	}
 	
 	return frame_number;
@@ -478,7 +514,7 @@ void* f_monitor(void *arg)
 
 		
 			DetectionResults results = read_lepton_array(currentIteration, lepton_reference_array, current_lepton_array);
-			
+						
 			if(results.water_detected)
 			{
 				
@@ -505,6 +541,7 @@ void* f_monitor(void *arg)
 				}
 				else if(water_detected && water_detected_confirmed && (water_detected_cycle_count/30) > WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN)
 				{
+					//que_video_frame(current_lepton_array, results.minValue, results.maxValue);
 					pabort("Water Shutdown Complete!");
 				}
 				
@@ -551,9 +588,7 @@ void* f_monitor(void *arg)
 				g_main_context_invoke(mainc, set_capture_image, (gpointer)captureImage);
 			}
 			
-			//if(currentIteration % 6 ==0){
 			if(currentIteration % 8 ==0){
-			//if(currentIteration == 2){
 				que_video_frame(current_lepton_array, results.minValue, results.maxValue);
 			}
 			

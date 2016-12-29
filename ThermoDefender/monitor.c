@@ -16,6 +16,9 @@
 #include "tdio.h"
 #include "shared.h"
 
+// --- Global Variables
+bool _monitorActive = false;
+bool _demoFinished = false;
 // --- Constants
 //static const int MAX_CYCLES = 9000; //5 mins
 static const int MAX_CYCLES = 3600; //1 mins
@@ -51,7 +54,7 @@ static uint16_t resetCount = 0;
 uint8_t lepton_frame_packet[VOSPI_FRAME_SIZE];
 
 
-bool _monitorActive = false;
+
 
 
 static const uint8_t PUMP_START_DELAY_SECS = 1;
@@ -63,6 +66,7 @@ static bool pump_started = false;
 static bool water_detected = false;
 static bool water_detected_confirmed = false;
 static float water_detected_cycle_count;
+
 
 
 static int video_array[60][80];
@@ -125,54 +129,52 @@ void convert_array_to_image_data ()
 	float diff = maxValue - minValue;
 	float scale = 255/diff;
 	
-	//printf("Max: %d\n", maxValue);
-	//printf("Min: %d\n", minValue);
-	//printf("Diff: %3.6f\n", diff);
-	//printf("Scale: %3.6f\n", scale);
-	
-	MagickWand *m_wand = NULL;
-	PixelWand *p_wand = NULL;
-	PixelIterator *iterator = NULL;
-	PixelWand **pixels = NULL;
-	int x,y;
-	char hex[128];
+	// if no difference, then assume an empty frame and exit function
+	if(diff > 0)
+	{
+		MagickWand *m_wand = NULL;
+		PixelWand *p_wand = NULL;
+		PixelIterator *iterator = NULL;
+		PixelWand **pixels = NULL;
+		int x,y;
+		char hex[128];
 
-	MagickWandGenesis();
+		MagickWandGenesis();
 
-	p_wand = NewPixelWand();
-	PixelSetColor(p_wand,"white");
-	m_wand = NewMagickWand();
-	// Create a 100x100 image with a default of white
-	MagickNewImage(m_wand,80,60,p_wand);
-	// Get a new pixel iterator 
-	iterator=NewPixelIterator(m_wand);
-	for(y=0;y<60;y++) {
-		// Get the next row of the image as an array of PixelWands
-		pixels=PixelGetNextIteratorRow(iterator,&x);
-		// Set the row of wands to a simple gray scale gradient
-		for(x=0;x<80;x++) {
-			pixValue = (video_array[y][x] - minValue) * scale;
-			if(pixValue > 0)
-				pixValue = pixValue - (pixValue % 3);
-			
-			sprintf(hex,"#%02x%02x%02x",colormap[3*pixValue], colormap[3*pixValue+1], colormap[3*pixValue+2]);
-			PixelSetColor(pixels[x],hex);
+		p_wand = NewPixelWand();
+		PixelSetColor(p_wand,"white");
+		m_wand = NewMagickWand();
+		// Create a 100x100 image with a default of white
+		MagickNewImage(m_wand,80,60,p_wand);
+		// Get a new pixel iterator 
+		iterator=NewPixelIterator(m_wand);
+		for(y=0;y<60;y++) {
+			// Get the next row of the image as an array of PixelWands
+			pixels=PixelGetNextIteratorRow(iterator,&x);
+			// Set the row of wands to a simple gray scale gradient
+			for(x=0;x<80;x++) {
+				pixValue = (video_array[y][x] - minValue) * scale;
+				if(pixValue > 0)
+					pixValue = pixValue - (pixValue % 3);
+
+				sprintf(hex,"#%02x%02x%02x",colormap[3*pixValue], colormap[3*pixValue+1], colormap[3*pixValue+2]);
+				PixelSetColor(pixels[x],hex);
+			}
+			// Sync writes the pixels back to the m_wand
+			PixelSyncIterator(iterator);
 		}
-		// Sync writes the pixels back to the m_wand
-		PixelSyncIterator(iterator);
-	}
-	
-	//MagickResizeImage(m_wand,480,360,LanczosFilter,1);
-	MagickResizeImage(m_wand,757,568,LanczosFilter,1);
-	MagickExportImagePixels(m_wand,0,0,757,568, "RGB", CharPixel, videoFrameBlock);
-	
-	// Clean up
-	iterator=DestroyPixelIterator(iterator);
-	DestroyMagickWand(m_wand);
-	MagickWandTerminus();
 
-	memset(video_array, 0, sizeof(video_array));
-	
+		//MagickResizeImage(m_wand,480,360,LanczosFilter,1);
+		MagickResizeImage(m_wand,757,568,LanczosFilter,1);
+		MagickExportImagePixels(m_wand,0,0,757,568, "RGB", CharPixel, videoFrameBlock);
+
+		// Clean up
+		iterator=DestroyPixelIterator(iterator);
+		DestroyMagickWand(m_wand);
+		MagickWandTerminus();
+
+		memset(video_array, 0, sizeof(video_array));
+	}
 	creatingImage = false;	
 
 	//printf("Palette size: %d\n", sizeof(colormap_rainbow) /sizeof(*colormap_rainbow));
@@ -461,13 +463,14 @@ DetectionResults read_lepton_array(int currentIteration, int referenceArray[60][
 void* f_monitor(void *arg)
 {
 	_monitorActive = true;
+	_demoFinished = false;
 	water_tc_diff_is_negative = water_tc_differential < 0;
 	water_detected = false;
 	water_detected_confirmed = false;
 	water_detected_cycle_count = 0;
 	pump_started = false;
 	set_gpio_12(1);
-	
+	g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
 	
 	int currentIteration = 0;
 	int fd;
@@ -507,7 +510,6 @@ void* f_monitor(void *arg)
 				if(!pump_started){
 					set_gpio_16(1);
 					pump_started = true;
-					g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
 				}
 				
 				results = read_lepton_array(currentIteration, lepton_reference_array, current_lepton_array);
@@ -543,6 +545,7 @@ void* f_monitor(void *arg)
 						
 						usleep(NOTIFCATION_SENT_DELAY_SECS * 1000000);
 						g_main_context_invoke(mainc, set_demo_status, (gpointer)4);
+						_demoFinished = true;
 						_active = false;
 					}
 
@@ -590,6 +593,7 @@ void* f_monitor(void *arg)
 		
 	
 	_monitorActive = false;
+	
 	
 	// Call main thread to update the GUI
 	g_main_context_invoke(mainc, set_status_monitor_ended, NULL);

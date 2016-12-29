@@ -363,6 +363,14 @@ void update_demo_status(uint8_t status)
 			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_on.png");
 			gtk_image_set_from_file (demoNotificationSent, "demo_notification_sent_active.png");
 			break;
+			
+		case 5 : // Reset all to off
+			gtk_image_set_from_file (demoStart, "demo_start_off.png");
+			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_off.png");
+			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_off.png");
+			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_off.png");
+			gtk_image_set_from_file (demoNotificationSent, "demo_notification_sent_off.png");
+			break;
 	
 	}
 }
@@ -372,26 +380,12 @@ void update_demo_status(uint8_t status)
 void update_monitor_status_labels(char *labelValue)
 {	
 	if(!_active){
-/*
-		if(labelValue == NULL)
-			gtk_label_set_text(statusLabel, "Inactive");
-		else
-			gtk_label_set_text(statusLabel, labelValue);
-*/
-		
-		gtk_button_set_label(monitorButton, "Start");
-		
+	
 		set_gpio_12(0);
 		set_gpio_16(0);
-	} else {
-/*
-		if(labelValue == NULL)
-			gtk_label_set_text(statusLabel, "Monitoring");
-		else
-			gtk_label_set_text(statusLabel, labelValue);
-*/
 		
-		gtk_button_set_label(monitorButton, "Stop");
+		if(!_demoFinished)
+			update_demo_status(5);
 	}
 }
 
@@ -405,6 +399,7 @@ static void toggle_monitor ()
 	if(_active && !_monitorActive) {
 		
 		// Spin up thread to start monitoring
+		update_demo_status(5);
 		int err;
 		err = pthread_create(&(tid[0]), NULL, &f_monitor, NULL);
 		if(err != 0)

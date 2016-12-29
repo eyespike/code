@@ -96,6 +96,40 @@ static void init_video_area (GtkWidget *da, gpointer data)
 // </editor-fold>
 
 
+/*********************************** Capture **********************************/
+// <editor-fold>
+
+void set_capture_image_from_current_array(GtkImage *image)
+{
+	char* imageName = save_pgm_file();
+	
+	// Scale the image up and display it (using ImageMagick commands)
+	char largeImageName[34];
+	snprintf(largeImageName, sizeof largeImageName, "l_%s", imageName);
+	
+	char scaleCommand[100];
+	snprintf(scaleCommand, sizeof scaleCommand, "convert %s -resize 600%% %s", imageName, largeImageName);
+	system(scaleCommand);
+	
+	gtk_image_set_from_file (image, largeImageName);	
+	
+	int ret;
+	ret = remove(imageName);
+	ret = remove(largeImageName);
+}
+
+
+static void capture_image (GtkWidget *widget, gpointer *data)
+{
+	int fd = connect_to_lepton();
+	while(transfer(fd)!=59){}
+	close(fd);
+	set_capture_image_from_current_array(captureImage);
+}
+
+// </editor-fold>
+
+
 /*********************************** Calibration & Settings **********************************/
 // <editor-fold>
 
@@ -210,7 +244,8 @@ static void done_settings (GtkWidget *widget, gpointer window)
 }
 
 
-static void show_settings(GtkWidget *widget, gpointer *data)
+//static void show_settings(GtkWidget *widget, gpointer *data)
+static void show_settings()
 {
 	
   GtkBuilder *builder;
@@ -226,6 +261,7 @@ static void show_settings(GtkWidget *widget, gpointer *data)
   gtk_window_set_transient_for ((GtkWindow*)window, main_window);
   gtk_window_set_keep_above((GtkWindow*)window, TRUE);
   gtk_window_set_modal((GtkWindow*)window, TRUE);
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
   
   //--- Detection Variables
     
@@ -254,9 +290,7 @@ static void show_settings(GtkWidget *widget, gpointer *data)
   vEntries.minFirePC = (GtkEntry*)gtk_builder_get_object (builder, "eFirePC");
   gtk_entry_set_text(vEntries.minFirePC, varStr);
   
-  //--- Save
-  button = gtk_builder_get_object (builder, "btnSaveSettings");
-  g_signal_connect (button, "clicked", G_CALLBACK (save_settings), NULL);  
+   
   
   
   //--- Calibrate Variables
@@ -270,6 +304,17 @@ static void show_settings(GtkWidget *widget, gpointer *data)
   g_signal_connect (button, "clicked", G_CALLBACK (calibrate_fire), NULL);
   
   
+  //--- Capture Image
+  captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
+  gtk_image_set_from_file (captureImage, "no-image.gif");
+  button = gtk_builder_get_object (builder, "btnCaptureFrame");
+  g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
+  
+  
+  //--- Save
+  button = gtk_builder_get_object (builder, "btnSaveSettings");
+  g_signal_connect (button, "clicked", G_CALLBACK (save_settings), NULL); 
+  
   //--- Done
   button = gtk_builder_get_object (builder, "btnDoneSettings");
   g_signal_connect (button, "clicked", G_CALLBACK (done_settings), (GtkWindow*)window);
@@ -280,35 +325,7 @@ static void show_settings(GtkWidget *widget, gpointer *data)
 // </editor-fold>
 
 
-/*********************************** Capture **********************************/
-// <editor-fold>
 
-void set_capture_image_from_current_array(GtkImage *image)
-{
-	char* imageName = save_pgm_file();
-	
-	// Scale the image up and display it (using ImageMagick commands)
-	char largeImageName[34];
-	snprintf(largeImageName, sizeof largeImageName, "l_%s", imageName);
-	
-	char scaleCommand[100];
-	snprintf(scaleCommand, sizeof scaleCommand, "convert %s -resize 600%% %s", imageName, largeImageName);
-	system(scaleCommand);
-	
-	//gtk_image_set_from_file (image, largeImageName);	
-	gtk_image_set_from_file (image, largeImageName);	
-}
-
-
-static void capture_image (GtkWidget *widget, gpointer *data)
-{
-	int fd = connect_to_lepton();
-	while(transfer(fd)!=59){}
-	close(fd);
-	set_capture_image_from_current_array(captureImage);
-}
-
-// </editor-fold>
 
 
 /*********************************** Monitor **********************************/
@@ -379,7 +396,8 @@ void update_monitor_status_labels(char *labelValue)
 }
 
 
-static void toggle_monitor (GtkWidget *widget, gpointer *data)
+//static void toggle_monitor (GtkWidget *widget, gpointer *data)
+static void toggle_monitor ()
 {	
 	_active = !_active;
 	update_monitor_status_labels(NULL);
@@ -397,6 +415,27 @@ static void toggle_monitor (GtkWidget *widget, gpointer *data)
 }
 
 // </editor-fold>
+
+
+static gboolean button_press_event( GtkWidget *widget, GdkEventButton *event )
+{
+  if (event->button == 1) {
+	  
+	  // Top Left - Settings
+	  if(event->x_root < 140 && event->y_root < 110)
+		  show_settings();
+	  
+	  // Bottom Left - Quit
+	  if(event->x_root < 140 && event->y_root > 960)
+		  gtk_main_quit();
+	  
+	  // Start
+	  if(event->x_root > 110 && event->x_root < 360 && event->y_root > 400 && event->y_root < 520)
+		  toggle_monitor();
+  }
+  return TRUE;
+}
+
 
 /*
 int main (int argc, char *argv[])
@@ -486,9 +525,9 @@ int main( int argc, char *argv[])
 	
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_fullscreen((GtkWindow*)window);
-	//gtk_window_set_default_size(GTK_WINDOW(window), 480, 270);
-    //gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-
+	main_window = (GtkWindow*)window;
+	g_signal_connect (window, "button_press_event", G_CALLBACK (button_press_event), NULL);
+	
     layout = gtk_layout_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER (window), layout);
     gtk_widget_show(layout);
@@ -531,20 +570,11 @@ int main( int argc, char *argv[])
 	
 	
 	//--- Monitor toggle & status
-	monitorButton = gtk_button_new_with_label("Start");
-	gtk_layout_put(GTK_LAYOUT(layout), monitorButton, 150, 50);
-	g_signal_connect (monitorButton, "clicked", G_CALLBACK (toggle_monitor), NULL);
+	//monitorButton = gtk_button_new_with_label("Start");
+	//gtk_layout_put(GTK_LAYOUT(layout), monitorButton, 150, 50);
+	//g_signal_connect (monitorButton, "clicked", G_CALLBACK (toggle_monitor), NULL);
 	
 	
-	
-    button = gtk_button_new_with_label("Quit");
-	//button = gtk_image_new_from_file("capture.bmp");
-    gtk_layout_put(GTK_LAYOUT(layout), button, 50, 50);
-    //gtk_widget_set_size_request(button, 80, 60);
-	//gtk_button_set_image(button, gtk_image_new_from_file("capture.bmp"));
-	g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);
-	
-
     g_signal_connect_swapped(G_OBJECT(window), "destroy",
     G_CALLBACK(gtk_main_quit), NULL);
 

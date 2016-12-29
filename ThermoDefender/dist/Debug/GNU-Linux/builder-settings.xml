@@ -211,6 +211,52 @@
 			<property name="width">4</property>
           </packing>
 		</child>
+	
+		
+		<child>
+		  <object id="btnCaptureFrame" class="GtkButton">
+			<property name="visible">True</property>
+			<property name="label">Capture Single Frame</property>
+			<property name="border-width">5</property>
+		  </object>
+		  <packing>
+			<property name="left-attach">0</property>
+			<property name="top-attach">6</property>
+			<property name="width">4</property>
+		  </packing>
+		</child>
+		<child>
+			<object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				
+				<child>
+				  <object class="GtkImage" id="captureImage">
+					<property name="visible">True</property>
+					
+				  </object>
+				</child>				
+			</object>
+		  <packing>
+			<property name="left-attach">0</property>
+			<property name="top-attach">7</property>
+			<property name="width">4</property>
+		  </packing>
+		</child>
+
+		
+		<child>
+		  <object class="GtkHSeparator" id="hseparator2">
+			<property name="height_request">30</property>
+			<property name="visible">True</property>
+			<property name="can_focus">False</property>
+		  </object>
+		  <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">8</property>
+			<property name="width">4</property>
+          </packing>
+		</child>
 		
 		
 		<child>
@@ -221,7 +267,7 @@
           </object>
           <packing>
             <property name="left-attach">1</property>
-            <property name="top-attach">6</property>
+            <property name="top-attach">9</property>
             <property name="width">1</property>
           </packing>
         </child>
@@ -233,7 +279,7 @@
           </object>
           <packing>
             <property name="left-attach">2</property>
-            <property name="top-attach">6</property>
+            <property name="top-attach">9</property>
             <property name="width">1</property>
           </packing>
         </child>

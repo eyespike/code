@@ -26,8 +26,8 @@ void initializeGpio()
 	pinMode(pin16, OUTPUT);     // Set regular LED as output
 	
 	// make sure they are off
-	digitalWrite(pin12, LOW);
-	digitalWrite(pin16, LOW);
+	digitalWrite(pin12, HIGH);
+	digitalWrite(pin16, HIGH);
 }
 
 int set_gpio_12(int state)
@@ -37,9 +37,9 @@ int set_gpio_12(int state)
 	//int state = digitalRead(pin12);
 		
 	if(state == 1)
-		digitalWrite(pin12, HIGH); // Turn LED ON
-	else
 		digitalWrite(pin12, LOW); // Turn LED ON
+	else
+		digitalWrite(pin12, HIGH); // Turn LED ON
 
 
 	return 0;
@@ -52,9 +52,9 @@ int set_gpio_16(int state)
 	//int state = digitalRead(pin16);
 		
 	if(state == 1)
-		digitalWrite(pin16, HIGH); // Turn LED ON
-	else
 		digitalWrite(pin16, LOW); // Turn LED ON
+	else
+		digitalWrite(pin16, HIGH); // Turn LED ON
 
 
 	return 0;

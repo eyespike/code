@@ -26,19 +26,15 @@ void initializeGpio()
 	pinMode(pin16, OUTPUT);     // Set regular LED as output
 	
 	// make sure they are off
-    pinMode(ledPin, OUTPUT);     // Set regular LED as output
-    pinMode(butPin, INPUT);      // Set button as INPUT
-/*
-    pinMode(butPin, INPUT);      // Set button as INPUT
-    pullUpDnControl(butPin, PUD_UP); // Enable pull-up resistor on button
-*/
+	digitalWrite(pin12, LOW);
+	digitalWrite(pin16, LOW);
 }
 
-int gpio_testing(GtkWidget *widget, bool *turnOn)
+int set_gpio_12(int state)
 {
     
 	// Regular pin out
-	int state = digitalRead(ledPin);
+	//int state = digitalRead(pin12);
 		
 	if(state == 1)
 		digitalWrite(pin12, HIGH); // Turn LED ON
@@ -56,21 +52,6 @@ int set_gpio_16(int state)
 	//int state = digitalRead(pin16);
 		
 	if(state == 1)
-		digitalWrite(pin16, HIGH); // Turn LED ON
-	else
-		digitalWrite(pin16, LOW); // Turn LED ON
-
-
-	return 0;
-}
-
-int toggle_gpio_16(GtkWidget *widget, gpointer *data)
-{
-    
-	// Regular pin out
-	int state = digitalRead(pin16);
-		
-	if(state == 0)
 		digitalWrite(pin16, HIGH); // Turn LED ON
 	else
 		digitalWrite(pin16, LOW); // Turn LED ON

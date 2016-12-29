@@ -24,7 +24,6 @@ GtkImage *captureImage;
 GtkDrawingArea *videoArea;
 
 
-
 GtkImage *demoStart;
 GtkImage *demoPossibleFlooding;
 GtkImage *demoFloodingConfirmed;
@@ -44,6 +43,8 @@ unsigned char *videoFrameBlock;
 	GtkEntry *minFirePC;
 } VariableEntries;
 
+static VariableEntries vEntries;
+
 pthread_t tid[2];
 bool _active = false;
 
@@ -51,86 +52,30 @@ bool _active = false;
 // --- Forward Declarations
 //static void toggle_status (GtkWidget *widget, gpointer *data);
 
-void set_capture_image_from_current_array(GtkImage *image)
-{
-	char* imageName = save_pgm_file();
-	
-	// Scale the image up and display it (using ImageMagick commands)
-	char largeImageName[34];
-	snprintf(largeImageName, sizeof largeImageName, "l_%s", imageName);
-	
-	char scaleCommand[100];
-	snprintf(scaleCommand, sizeof scaleCommand, "convert %s -resize 600%% %s", imageName, largeImageName);
-	system(scaleCommand);
-	
-	gtk_image_set_from_file (image, largeImageName);	
-}
 
-static void capture_image (GtkWidget *widget, gpointer *data)
+
 /*********************************** Video **********************************/
 // <editor-fold>
-	MagickWand *m_wand = NULL;
-	PixelWand *p_wand = NULL;
-	return block;
-	set_capture_image_from_current_array(captureImage);
-gboolean video_area_expose (GtkWidget *da, GdkEvent *event, gpointer data)
-//void video_area_expose (GtkWidget *da, BMP *bmp)
+gboolean video_area_expose (GtkWidget *da, gpointer data)
 {
-	
-	//(void)event; void(data);
 	GdkPixbuf *pix;
-	GError *err = NULL;
 		
-	IplImage *ocvImage;
-	//ocvImage = cvLoadImage("no-video.gif",1);
-	//unsigned char *block = (unsigned char*)data;
-	MagickExportImagePixels(m_wand,0,0,480,360, "RGB", CharPixel, block);
+	pix = gdk_pixbuf_new_from_data (
+			(guchar*)videoFrameBlock,
 			GDK_COLORSPACE_RGB,
 			FALSE,
-			//8, 480, 360, (480*3),
-			8, 1110, 831, (1110*3),
-			ocvImage->height,
-			(ocvImage->widthStep),
+			8, 757, 568, (757*3),
 			NULL,
 			NULL);
-	//if(data == NULL){
-		pix = gdk_pixbuf_new_from_file ("no-video.gif", &err);
 	
-	unsigned char *block = (unsigned char*)data;
-	//{
-		//
-		//UCHAR *pixData = (UCHAR*)data;
-		
-		//BMP *bmp = (BMP*)data;
-		//BMP *bmp = BMP_ReadFile( "capture.bmp" );
-		
-		//UCHAR *pixels = (UCHAR*)data;
-		
-		pix = gdk_pixbuf_new_from_data ((guchar*)BMP_GetBytes(bmp),
-			(guchar*)block,
-			GDK_COLORSPACE_RGB,
-			FALSE,
-			8,80,60,240,
-			8, 1110, 831, (1110*3),
-			pix_destroy,
-			bmp);
-	//}
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
-    //    cr = gdk_cairo_create (da->window);
     gdk_cairo_set_source_pixbuf(cr, pix, 0, 10);
     cairo_paint(cr);
-    //    cairo_fill (cr);
     cairo_destroy (cr);
 	
-	//memset(block, 0, sizeof(block));
 	return FALSE;
-	
-	
-	
-	
 }
-*/
 
 
 static void init_video_area (GtkWidget *da, gpointer data)
@@ -491,11 +436,6 @@ int main (int argc, char *argv[])
   gtk_widget_set_valign((GtkWidget*)grid, GTK_ALIGN_CENTER);
   
     
-  button = gtk_builder_get_object (builder, "btnGpioOn");
-  g_signal_connect (button, "clicked", G_CALLBACK (gpio_testing), (gpointer)true);
-  
-  button = gtk_builder_get_object (builder, "btnGpio16");
-  g_signal_connect (button, "clicked", G_CALLBACK (toggle_gpio_16), (gpointer)true);
   //--- Capture Image
   captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
   gtk_image_set_from_file (captureImage, "demo_bg_small.png");
@@ -521,8 +461,6 @@ int main (int argc, char *argv[])
   //--- Quit
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);
-
-
   
   
   

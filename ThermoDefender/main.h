@@ -37,4 +37,3 @@ void update_demo_status(uint8_t *status);
 #endif
 
 #endif /* MAIN_H */
-

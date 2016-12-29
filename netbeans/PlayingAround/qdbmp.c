@@ -1,6 +1,7 @@
 #include "qdbmp.h"
 #include <stdlib.h>
 #include <string.h>
+#include <gtk/gtk.h>
 
 
 /* Bitmap header */
@@ -74,6 +75,22 @@ int		WriteUSHORT	( USHORT x, FILE* f );
 
 
 /*********************************** Public methods **********************************/
+
+UCHAR* BMP_GetBytes(BMP* bmp)
+{
+	
+	if ( bmp == NULL )
+	{
+		BMP_LAST_ERROR_CODE = BMP_INVALID_ARGUMENT;
+		return -1;
+	}
+
+	BMP_LAST_ERROR_CODE = BMP_OK;
+	
+	return ( bmp->Data );	
+}
+
+
 
 
 /**************************************************************
@@ -196,6 +213,13 @@ void BMP_Free( BMP* bmp )
 }
 
 
+void pix_destroy(guchar *pixels, gpointer data)
+{
+
+	BMP_Free((BMP*)pixels);
+	
+}
+
 /**************************************************************
 	Reads the specified BMP image file.
 **************************************************************/
@@ -289,7 +313,6 @@ BMP* BMP_ReadFile( const char* filename )
 		return NULL;
 	}
 
-
 	/* Read image data */
 	if ( fread( bmp->Data, sizeof( UCHAR ), bmp->Header.ImageDataSize, f ) != bmp->Header.ImageDataSize )
 	{
@@ -305,6 +328,25 @@ BMP* BMP_ReadFile( const char* filename )
 	fclose( f );
 
 	BMP_LAST_ERROR_CODE = BMP_OK;
+	
+	
+	printf("Magic: %d\n", bmp->Header.Magic);
+	printf("File Size: %d\n", bmp->Header.FileSize);
+	printf("Reserved1: %d\n", bmp->Header.Reserved1);
+	printf("Reserved2: %d\n", bmp->Header.Reserved2);
+	printf("DataOffset: %d\n", bmp->Header.DataOffset);
+	printf("HeaderSize: %d\n", bmp->Header.HeaderSize);
+	printf("Width: %d\n", bmp->Header.Width);
+	printf("Height: %d\n", bmp->Header.Height);
+	printf("Planes: %d\n", bmp->Header.Planes);
+	printf("Bits per pixel: %d\n", bmp->Header.BitsPerPixel);
+	printf("CompressionType: %d\n",	bmp->Header.CompressionType);
+	printf("Image Data Size: %d\n",	bmp->Header.ImageDataSize);
+	printf("HPixelsPerMeter: %d\n",	bmp->Header.HPixelsPerMeter);
+	printf("VPixelsPerMeter: %d\n",	bmp->Header.VPixelsPerMeter);
+	printf("ColorsUsed: %d\n", bmp->Header.ColorsUsed);
+	printf("ColorsRequired: %d\n", bmp->Header.ColorsRequired);
+	
 
 	return bmp;
 }

@@ -4,8 +4,10 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>MagickCore.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>monitor.h</itemPath>
+      <itemPath>shared.h</itemPath>
       <itemPath>tdio.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -42,9 +44,11 @@
       </toolsSet>
       <compileType>
         <cTool>
-          <commandLine>`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` -lwiringPi</commandLine>
+          <commandLine>`pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` `pkg-config --cflags --libs MagickWand` -lwiringPi</commandLine>
         </cTool>
       </compileType>
+      <item path="MagickCore.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="builder.xml" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.c" ex="false" tool="0" flavor2="0">
@@ -54,6 +58,8 @@
       <item path="monitor.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="shared.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -80,6 +86,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="MagickCore.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="builder.xml" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.c" ex="false" tool="0" flavor2="0">
@@ -89,6 +97,8 @@
       <item path="monitor.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="monitor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="shared.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tdio.c" ex="false" tool="0" flavor2="0">
       </item>

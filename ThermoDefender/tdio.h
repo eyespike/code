@@ -20,8 +20,8 @@ extern "C" {
 
 	
 void initializeGpio();	
-int toggle_gpio_12(GtkWidget *widget, gpointer *data);
-int toggle_gpio_16(GtkWidget *widget, gpointer *data);
+int set_gpio_12(int state);
+int set_gpio_16(int state);
 
 
 
@@ -31,4 +31,3 @@ int toggle_gpio_16(GtkWidget *widget, gpointer *data);
 #endif
 
 #endif /* TDIO_H */
-

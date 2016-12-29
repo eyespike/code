@@ -1,0 +1,38 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/* 
+ * File:   tdio.h
+ * Author: Jeff
+ *
+ * Created on December 14, 2016, 4:01 PM
+ */
+
+#ifndef TDIO_H
+#define TDIO_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	
+void initializeGpio();	
+<<<<<<< 446ff5302ffac35cbdc84c0a7e9d7af618f0b57e
+int toggle_gpio_12(GtkWidget *widget, gpointer *data);
+int toggle_gpio_16(GtkWidget *widget, gpointer *data);
+=======
+int set_gpio_12(int state);
+int set_gpio_16(int state);
+>>>>>>> Added the gpio signal switches to the detection proccess.
+
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* TDIO_H */

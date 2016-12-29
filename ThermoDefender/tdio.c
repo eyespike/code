@@ -21,66 +21,37 @@ const int pin16 = 16; // Regular LED - Broadcom pin 23, P1 pin 16
 void initializeGpio()
 {
 	wiringPiSetupGpio();
-	
-	//pinMode(pwmPin, PWM_OUTPUT); // Set PWM LED as PWM output
+
     pinMode(pin12, OUTPUT);     // Set regular LED as output
 	pinMode(pin16, OUTPUT);     // Set regular LED as output
-/*
-    pinMode(butPin, INPUT);      // Set button as INPUT
-    pullUpDnControl(butPin, PUD_UP); // Enable pull-up resistor on button
-*/
+	
+	// make sure they are off
+	digitalWrite(pin12, LOW);
+	digitalWrite(pin16, LOW);
 }
 
-int toggle_gpio_12(GtkWidget *widget, gpointer *data)
+int set_gpio_12(int state)
 {
     
 	// Regular pin out
-	int state = digitalRead(pin12);
+	//int state = digitalRead(pin12);
 		
-	if(state == 0)
+	if(state == 1)
 		digitalWrite(pin12, HIGH); // Turn LED ON
 	else
 		digitalWrite(pin12, LOW); // Turn LED ON
 
-/*
-	// PWM led
-	if(ledBright)
-		pwmWrite(pwmPin, 1024 - pwmValue);
-	else 
-		pwmWrite(pwmPin, pwmValue);
-	
-	ledBright = !ledBright;
-*/
-/*
-    // Loop (while(1)):
-    while(1)
-    {
-        if (digitalRead(butPin)) // Button is released if this returns 1
-        {
-            pwmWrite(pwmPin, pwmValue); // PWM LED at bright setting
-            digitalWrite(ledPin, LOW);     // Regular LED off
-        }
-        else // If digitalRead returns 0, button is pressed
-        {
-            pwmWrite(pwmPin, 1024 - pwmValue); // PWM LED at dim setting
-            // Do some blinking on the ledPin:
-            digitalWrite(ledPin, HIGH); // Turn LED ON
-            delay(75); // Wait 75ms
-            digitalWrite(ledPin, LOW); // Turn LED OFF
-            delay(75); // Wait 75ms again
-        }
-    }
-*/
+
 	return 0;
 }
 
-int toggle_gpio_16(GtkWidget *widget, gpointer *data)
+int set_gpio_16(int state)
 {
     
 	// Regular pin out
-	int state = digitalRead(pin16);
+	//int state = digitalRead(pin16);
 		
-	if(state == 0)
+	if(state == 1)
 		digitalWrite(pin16, HIGH); // Turn LED ON
 	else
 		digitalWrite(pin16, LOW); // Turn LED ON

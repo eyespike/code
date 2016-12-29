@@ -199,6 +199,7 @@
           </packing>
         </child>
 		
+		
 		<child>
 		  <object class="GtkHSeparator" id="hseparator1">
 			<property name="height_request">30</property>
@@ -208,6 +209,101 @@
 		  <packing>
             <property name="left-attach">0</property>
             <property name="top-attach">5</property>
+			<property name="width">4</property>
+          </packing>
+		</child>
+		
+		
+		<child>
+          <object id="lblFloodDetectDelay" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Flood Detect Delay</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+		<child>
+          <object id="lblFloodConfirmedDelay" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Confirm Flood Delay</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+		<child>
+          <object id="lblNoticeSentDelay" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Notice Sent Delay</property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+		
+		<child>
+		  <object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				<child>
+					<object id="eFloodDetectDelay" class="GtkEntry">
+						<property name="visible">True</property>
+					</object>
+				</child>
+			</object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">7</property>
+          </packing>
+        </child>
+		<child>
+		  <object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				<child>
+					<object id="eFloodConfirmedDelay" class="GtkEntry">
+						<property name="visible">True</property>
+					</object>
+				</child>
+			</object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">7</property>
+          </packing>
+        </child>
+		<child>
+          <object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="border-width">5</property>
+				<child>
+					<object id="eNoticeSentDelay" class="GtkEntry">
+						<property name="visible">True</property>
+					</object>
+				</child>
+			</object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">7</property>
+          </packing>
+        </child>
+		
+		
+		
+		
+		
+		<child>
+		  <object class="GtkHSeparator" id="hseparator3">
+			<property name="height_request">30</property>
+			<property name="visible">True</property>
+			<property name="can_focus">False</property>
+		  </object>
+		  <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">8</property>
 			<property name="width">4</property>
           </packing>
 		</child>
@@ -221,7 +317,7 @@
 		  </object>
 		  <packing>
 			<property name="left-attach">0</property>
-			<property name="top-attach">6</property>
+			<property name="top-attach">9</property>
 			<property name="width">4</property>
 		  </packing>
 		</child>
@@ -239,7 +335,7 @@
 			</object>
 		  <packing>
 			<property name="left-attach">0</property>
-			<property name="top-attach">7</property>
+			<property name="top-attach">10</property>
 			<property name="width">4</property>
 		  </packing>
 		</child>
@@ -253,7 +349,7 @@
 		  </object>
 		  <packing>
             <property name="left-attach">0</property>
-            <property name="top-attach">8</property>
+            <property name="top-attach">11</property>
 			<property name="width">4</property>
           </packing>
 		</child>
@@ -267,7 +363,7 @@
           </object>
           <packing>
             <property name="left-attach">1</property>
-            <property name="top-attach">9</property>
+            <property name="top-attach">12</property>
             <property name="width">1</property>
           </packing>
         </child>
@@ -279,7 +375,7 @@
           </object>
           <packing>
             <property name="left-attach">2</property>
-            <property name="top-attach">9</property>
+            <property name="top-attach">12</property>
             <property name="width">1</property>
           </packing>
         </child>

@@ -27,6 +27,11 @@ extern int water_min_detected_pc;
 extern int body_min_detected_pc;
 extern int fire_min_detected_pc;
 
+extern uint8_t PUMP_START_DELAY_SECS;
+extern uint8_t WATER_DETECTED_SECS;
+extern uint8_t WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN;
+extern uint8_t NOTIFCATION_SENT_DELAY_SECS;
+
 char* save_pgm_file(void);
 int connect_to_lepton();
 int transfer(int fd);

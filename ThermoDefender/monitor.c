@@ -25,10 +25,10 @@ static const int MAX_CYCLES = 3600; //1 mins
 
 //static const int CYCLES_TO_RESET_BASE = 240;
 
-int water_tc_differential = -45;
+int water_tc_differential = -25;
 int body_tc_differential = 120;
 int fire_tc_differential = 1000;
-int water_min_detected_pc = 300;
+int water_min_detected_pc = 200;
 int body_min_detected_pc = 1000;
 int fire_min_detected_pc = 100;
 bool water_tc_diff_is_negative = false;
@@ -57,10 +57,10 @@ uint8_t lepton_frame_packet[VOSPI_FRAME_SIZE];
 
 
 
-static const uint8_t PUMP_START_DELAY_SECS = 1;
-static const uint8_t WATER_DETECTED_SECS = 4;
-static const uint8_t WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN = 4;
-static const uint8_t NOTIFCATION_SENT_DELAY_SECS = 4;
+uint8_t PUMP_START_DELAY_SECS = 1;
+uint8_t WATER_DETECTED_SECS = 4;
+uint8_t WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN = 4;
+uint8_t NOTIFCATION_SENT_DELAY_SECS = 4;
 
 static bool pump_started = false;
 static bool water_detected = false;

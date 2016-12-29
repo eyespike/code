@@ -41,6 +41,9 @@ unsigned char *videoFrameBlock;
 	GtkEntry *minWaterPC;
 	GtkEntry *minBodyPC;
 	GtkEntry *minFirePC;
+	GtkEntry *floodDetectDelay;
+	GtkEntry *floodConfirmedDelay;
+	GtkEntry *noticeSentDelay;
 } VariableEntries;
 
 static VariableEntries vEntries;
@@ -145,6 +148,9 @@ static void save_settings (GtkWidget *widget, gpointer data)
 	water_min_detected_pc = (int)strtol(gtk_entry_get_text (vEntries.minWaterPC), (char **) NULL, 10);
 	body_min_detected_pc = (int)strtol(gtk_entry_get_text (vEntries.minBodyPC), (char **) NULL, 10);
 	fire_min_detected_pc = (int)strtol(gtk_entry_get_text (vEntries.minFirePC), (char **) NULL, 10);
+	WATER_DETECTED_SECS = (int)strtol(gtk_entry_get_text (vEntries.floodDetectDelay), (char **) NULL, 10);
+	WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN = (int)strtol(gtk_entry_get_text (vEntries.floodConfirmedDelay), (char **) NULL, 10);
+	NOTIFCATION_SENT_DELAY_SECS = (int)strtol(gtk_entry_get_text (vEntries.noticeSentDelay), (char **) NULL, 10);
 	
 	printf("Water Diff: %d\nBody Diff: %d\nFire Diff: %d\n", water_tc_differential, body_tc_differential, fire_tc_differential);
 	printf("Water PC: %d\nBody PC: %d\nFire PC: %d\n", water_min_detected_pc, body_min_detected_pc, fire_min_detected_pc);
@@ -290,9 +296,7 @@ static void show_settings()
   vEntries.minFirePC = (GtkEntry*)gtk_builder_get_object (builder, "eFirePC");
   gtk_entry_set_text(vEntries.minFirePC, varStr);
   
-   
-  
-  
+    
   //--- Calibrate Variables
   button = gtk_builder_get_object (builder, "btnCalibrateWater");
   g_signal_connect (button, "clicked", G_CALLBACK (calibrate_water), NULL);
@@ -302,6 +306,20 @@ static void show_settings()
   
   button = gtk_builder_get_object (builder, "btnCalibrateFire");
   g_signal_connect (button, "clicked", G_CALLBACK (calibrate_fire), NULL);
+  
+  
+  // --- Delay Variables
+  sprintf(varStr, "%d", WATER_DETECTED_SECS);
+  vEntries.floodDetectDelay = (GtkEntry*)gtk_builder_get_object (builder, "eFloodDetectDelay");
+  gtk_entry_set_text(vEntries.floodDetectDelay, varStr);
+  
+  sprintf(varStr, "%d", WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN);
+  vEntries.floodConfirmedDelay = (GtkEntry*)gtk_builder_get_object (builder, "eFloodConfirmedDelay");
+  gtk_entry_set_text(vEntries.floodConfirmedDelay, varStr);
+  
+  sprintf(varStr, "%d", NOTIFCATION_SENT_DELAY_SECS);
+  vEntries.noticeSentDelay = (GtkEntry*)gtk_builder_get_object (builder, "eNoticeSentDelay");
+  gtk_entry_set_text(vEntries.noticeSentDelay, varStr);
   
   
   //--- Capture Image

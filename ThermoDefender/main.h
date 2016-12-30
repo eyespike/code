@@ -32,6 +32,8 @@ void set_capture_image_from_current_array(GtkImage *image);
 gboolean video_area_expose (GtkWidget *da, gpointer data);
 void update_demo_status(uint8_t *status);
 
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -20,6 +20,7 @@ extern "C" {
 
 extern bool _monitorActive;
 extern bool _demoFinished;
+
 extern int water_tc_differential;
 extern int body_tc_differential;
 extern int fire_tc_differential;

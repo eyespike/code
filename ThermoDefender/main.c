@@ -1,4 +1,6 @@
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+#include <cairo.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -32,7 +34,6 @@ GtkImage *demoNotificationSent;
 
 
 unsigned char *videoFrameBlock;
-
 
  typedef struct {
 	GtkEntry *waterDiff;
@@ -68,13 +69,15 @@ gboolean video_area_expose (GtkWidget *da, gpointer data)
 			GDK_COLORSPACE_RGB,
 			FALSE,
 			8, 757, 568, (757*3),
+			//8, 80, 60, (80*3),
 			NULL,
 			NULL);
 	
     cairo_t *cr;
     cr = gdk_cairo_create (gtk_widget_get_window(da));
+	//cairo_scale(cr, 9.5, 9.5);
     gdk_cairo_set_source_pixbuf(cr, pix, 0, 10);
-    cairo_paint(cr);
+	cairo_paint(cr);
     cairo_destroy (cr);
 	
 	return FALSE;
@@ -450,6 +453,23 @@ static gboolean button_press_event( GtkWidget *widget, GdkEventButton *event )
 }
 
 
+static gboolean key_press_event( GtkWidget *widget, GdkEventKey *event )
+{
+
+	// S= Settings
+	if(event->keyval == 115)
+		show_settings();
+	  
+	// Q = Quit
+	if(event->keyval == 113)
+		gtk_main_quit();
+	  
+	// Space = Start
+	if(event->keyval == 32)
+		toggle_monitor();
+	return FALSE;
+}
+
 /*
 int main (int argc, char *argv[])
 {
@@ -540,6 +560,7 @@ int main( int argc, char *argv[])
     gtk_window_fullscreen((GtkWindow*)window);
 	main_window = (GtkWindow*)window;
 	g_signal_connect (window, "button_press_event", G_CALLBACK (button_press_event), NULL);
+	g_signal_connect (window, "key_press_event", G_CALLBACK (key_press_event), NULL);
 	
     layout = gtk_layout_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER (window), layout);
@@ -580,6 +601,7 @@ int main( int argc, char *argv[])
 	gtk_layout_put(GTK_LAYOUT(layout), videoArea, 854, 259);
 	g_signal_connect (videoArea, "draw", (GCallback) init_video_area, NULL);
 	videoFrameBlock = (unsigned char*)malloc(757*568*3);
+	//videoFrameBlock = (unsigned char*)malloc(80*60*3);
 	
 	
 	//--- Monitor toggle & status

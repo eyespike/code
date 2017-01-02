@@ -21,7 +21,7 @@ bool _monitorActive = false;
 bool _demoFinished = false;
 // --- Constants
 //static const int MAX_CYCLES = 9000; //5 mins
-static const int MAX_CYCLES = 3600; //1 mins
+//static const int MAX_CYCLES = 3600; //1 mins
 
 //static const int CYCLES_TO_RESET_BASE = 240;
 
@@ -266,11 +266,12 @@ static void que_video_frame(int tcArray[60][80])
 {
 	if(!creatingImage){
 
+		printf("frame queued\n");
 		// Copy the array
 		memcpy(video_array, tcArray, sizeof(int) * 60 * 80);
 		
-		g_main_context_invoke(mainc, set_video_frame, NULL);
-		//g_main_context_invoke_full(mainc, G_PRIORITY_HIGH, set_video_frame, NULL, NULL);
+		//g_main_context_invoke(mainc, set_video_frame, NULL);
+		g_main_context_invoke_full(mainc, G_PRIORITY_HIGH, set_video_frame, NULL, NULL);
 	}
 }
 
@@ -298,6 +299,8 @@ static void pabort(const char *s)
 
 int transfer(int fd)
 {
+	printf("In transfer function\n");
+	
 	int ret;
 	int i;
 	int frame_number;
@@ -313,12 +316,17 @@ int transfer(int fd)
 
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	
+	printf("Ret: %d\n");
+	printf("Packet: %d\n", lepton_frame_packet[1]);
+	
+	
 	if (ret < 1)
 		pabort("can't send spi message");
 
 	if(((lepton_frame_packet[0]&0xf) != 0x0f))
 	{
 		frame_number = lepton_frame_packet[1];
+		printf("Frame #: %d\n", frame_number);
 		if(frame_number < PACKETS_PER_FRAME )
 		{
 			for(i=0;i<80;i++)
@@ -480,51 +488,70 @@ DetectionResults read_lepton_array(int currentIteration, int referenceArray[60][
 }
 
 
-void* f_monitor(void *arg)
+void* iterate_lepton(void *arg)
 {
-	_monitorActive = true;
-	_demoFinished = false;
-	water_tc_diff_is_negative = water_tc_differential < 0;
-	water_detected = false;
-	water_detected_confirmed = false;
-	water_detected_cycle_count = 0;
-	pump_started = false;
-	floodIconUpdated = false;
-	floodConfirmedIconUpdated = false;
-	waterShutoffIconUpdated = false;
-	set_gpio_12(1);
-	g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
+	//_monitorActive = true;
 	
+	
+/*
 	int currentIteration = 0;
 	int fd;
 	char *msg;
+	DetectionResults results;
+*/
 	
 	
-	while(_active){
+	//while(_active){
 	
-		currentIteration ++;
-		if(currentIteration > MAX_CYCLES){
-			_active = !_active;
-		} else {
-			
-			fd = connect_to_lepton();
 		
-			while(transfer(fd)!=59){}
-			
-			int status_value = -1;
-			status_value = close(fd);
-			if(status_value < 0)
-				printf("Error - Could not close SPI device");
+/*
+		printf("Connecting to lepton\n");
+		
+		fd = connect_to_lepton();
+		
+		printf("Transferring\n");
+		while(transfer(fd)!=59){}
 
-			// Send video frame
-			que_video_frame(current_lepton_array);
+		printf("Transfer complete\n");
+		
+		int status_value = -1;
+		status_value = close(fd);
+		if(status_value < 0)
+			printf("Error - Could not close SPI device");
+
+		// Send video frame
+		que_video_frame(current_lepton_array);
+		printf("Video Frame sent.\n");
+*/
+		
+		
+		
+/*
+		// -- Monitoring ?
+		if(_monitorActive){
 			
-			DetectionResults results;
+			if(currentIteration != INT_MAX)
+				currentIteration ++;
+			else
+				currentIteration = 2;
 			
+			
+			// If first iteration of monitoring, then set the base values
 			if(currentIteration == 1){
+				_demoFinished = false;
+				water_tc_diff_is_negative = water_tc_differential < 0;
+				water_detected = false;
+				water_detected_confirmed = false;
+				water_detected_cycle_count = 0;
+				pump_started = false;
+				floodIconUpdated = false;
+				floodConfirmedIconUpdated = false;
+				waterShutoffIconUpdated = false;
+				set_gpio_12(1);
+				g_main_context_invoke(mainc, set_demo_status, (gpointer)0);
+				
 				results = read_lepton_array(currentIteration, lepton_reference_array, current_lepton_array);
 			}
-				
 			
 			if(currentIteration/30 > PUMP_START_DELAY_SECS){
 
@@ -563,7 +590,12 @@ void* f_monitor(void *arg)
 						usleep(NOTIFCATION_SENT_DELAY_SECS * 1000000);
 						g_main_context_invoke(mainc, set_demo_status, (gpointer)4);
 						_demoFinished = true;
-						_active = false;
+						//_active = false;
+						
+						_monitorActive = false;
+	
+						// Call main thread to update the GUI
+						g_main_context_invoke(mainc, set_status_monitor_ended, NULL);
 					}
 
 				}
@@ -577,27 +609,31 @@ void* f_monitor(void *arg)
 					water_detected_cycle_count = 0;
 				}
 			}
-				
-			//usleep(40200); // roughly 30 FPS
-			//usleep(20200); // roughly 30 FPS
-			usleep(10100); // roughly 60 FPS
-						
-/*
-			if(currentIteration % 30 == 0)
-				printf("Second %d\n", currentIteration / 30);
-*/
-			
+	
 		}
-	}
+*/
+		
+		
+		//usleep(40200); // roughly 30 FPS
+		//usleep(20200); // roughly 30 FPS
+		//usleep(10100); // roughly 60 FPS
+		
+	//}
 		
 
-	_monitorActive = false;
 	
-	
-	// Call main thread to update the GUI
-	g_main_context_invoke(mainc, set_status_monitor_ended, NULL);
 	
 	// Exit the thread
+	
+	
+	
+	int fd = connect_to_lepton();
+	while(transfer(fd)!=59){}
+	close(fd);
+	
+	
+	
+	
 	pthread_exit(NULL);		
 }
 

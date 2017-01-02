@@ -411,22 +411,32 @@ void update_monitor_status_labels(char *labelValue)
 }
 
 
+static void start_video_feed()
+{
+
+	_active = true;
+	int err;
+	err = pthread_create(&(tid[0]), NULL, &iterate_lepton, NULL);
+	if(err != 0)
+		printf("Threading error: [%s]\n", strerror(err));
+	else
+		printf("Video feed started\n");
+}
+
+static void stop_video_feed()
+{
+	_active = false;
+}
+
+
 //static void toggle_monitor (GtkWidget *widget, gpointer *data)
 static void toggle_monitor ()
 {	
-	_active = !_active;
+	_monitorActive = !_monitorActive;
 	update_monitor_status_labels(NULL);
 	
-	if(_active && !_monitorActive) {
-		
-		// Spin up thread to start monitoring
+	if(!_monitorActive) {
 		update_demo_status(5);
-		int err;
-		err = pthread_create(&(tid[0]), NULL, &f_monitor, NULL);
-		if(err != 0)
-			printf("\nThreading error: [%s]", strerror(err));
-		else
-			printf("\nMonitoring started\n");
 	}
 }
 
@@ -442,8 +452,11 @@ static gboolean button_press_event( GtkWidget *widget, GdkEventButton *event )
 		  show_settings();
 	  
 	  // Bottom Left - Quit
-	  if(event->x_root < 140 && event->y_root > 960)
-		  gtk_main_quit();
+	  if(event->x_root < 140 && event->y_root > 960){
+		stop_video_feed();
+		gtk_main_quit();
+	  }
+		
 	  
 	  // Start
 	  if(event->x_root > 110 && event->x_root < 360 && event->y_root > 400 && event->y_root < 520)
@@ -461,8 +474,10 @@ static gboolean key_press_event( GtkWidget *widget, GdkEventKey *event )
 		show_settings();
 	  
 	// Q = Quit
-	if(event->keyval == 113)
+	if(event->keyval == 113){
+		stop_video_feed();
 		gtk_main_quit();
+	}
 	  
 	// Space = Start
 	if(event->keyval == 32)
@@ -617,5 +632,7 @@ int main( int argc, char *argv[])
 
     gtk_main();
 
+	start_video_feed();
+	
     return 0;
 }

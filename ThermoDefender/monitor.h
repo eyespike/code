@@ -36,7 +36,7 @@ extern uint8_t NOTIFCATION_SENT_DELAY_SECS;
 char* save_pgm_file(void);
 int connect_to_lepton();
 int transfer(int fd);
-void* f_monitor(void *arg);
+void* iterate_lepton(void *arg);
 
 bool set_reference_frame();
 int get_tc_difference(int min_diff, int min_pixel_count);

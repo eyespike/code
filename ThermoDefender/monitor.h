@@ -20,6 +20,7 @@ extern "C" {
 
 extern bool _monitorActive;
 extern bool _demoFinished;
+extern int _currentIteration;
 
 extern int water_tc_differential;
 extern int body_tc_differential;
@@ -27,6 +28,11 @@ extern int fire_tc_differential;
 extern int water_min_detected_pc;
 extern int body_min_detected_pc;
 extern int fire_min_detected_pc;
+
+extern bool floodIconUpdated;
+extern bool floodConfirmedIconUpdated;
+extern bool waterShutoffIconUpdated;
+extern bool noticeSentIconUpdated;
 
 extern uint8_t PUMP_START_DELAY_SECS;
 extern uint8_t WATER_DETECTED_SECS;
@@ -36,7 +42,7 @@ extern uint8_t NOTIFCATION_SENT_DELAY_SECS;
 char* save_pgm_file(void);
 int connect_to_lepton();
 int transfer(int fd);
-void* f_monitor(void *arg);
+void* iterate_lepton(void *arg);
 
 bool set_reference_frame();
 int get_tc_difference(int min_diff, int min_pixel_count);

@@ -84,7 +84,7 @@ gboolean video_area_expose (GtkWidget *da, gpointer data)
 }
 
 
-static void init_video_area (GtkWidget *da, gpointer data)
+static gboolean init_video_area (GtkWidget *da, gpointer data)
 {
 	GdkPixbuf *pix;
 	GError *err = NULL;
@@ -373,16 +373,19 @@ void update_demo_status(uint8_t status)
 		case 2 :
 			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_on.png");
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_active.png");
+			floodIconUpdated = true;
 			break;
 			
 		case 3 :
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_on.png");
 			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_active.png");
+			floodConfirmedIconUpdated = true;
 			break;
 			
 		case 4 :
 			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_on.png");
 			gtk_image_set_from_file (demoNotificationSent, "demo_notification_sent_active.png");
+			noticeSentIconUpdated = true;
 			break;
 			
 		case 5 : // Reset all to off
@@ -411,23 +414,37 @@ void update_monitor_status_labels(char *labelValue)
 }
 
 
+static void start_video_feed()
+{
+
+	_active = true;
+	int err;
+	err = pthread_create(&(tid[0]), NULL, &iterate_lepton, NULL);
+	if(err != 0)
+		printf("Threading error: [%s]\n", strerror(err));
+	else
+		printf("Video feed started\n");
+}
+
+static void stop_video_feed()
+{
+	_active = false;
+}
+
+
 //static void toggle_monitor (GtkWidget *widget, gpointer *data)
 static void toggle_monitor ()
 {	
-	_active = !_active;
+	_currentIteration = 0;
+	_monitorActive = !_monitorActive;
 	update_monitor_status_labels(NULL);
+	update_demo_status(5);
 	
-	if(_active && !_monitorActive) {
-		
-		// Spin up thread to start monitoring
-		update_demo_status(5);
-		int err;
-		err = pthread_create(&(tid[0]), NULL, &f_monitor, NULL);
-		if(err != 0)
-			printf("\nThreading error: [%s]", strerror(err));
-		else
-			printf("\nMonitoring started\n");
+	if(!_monitorActive){
+		set_gpio_16(0);
+		set_gpio_12(0);
 	}
+		
 }
 
 // </editor-fold>
@@ -442,8 +459,11 @@ static gboolean button_press_event( GtkWidget *widget, GdkEventButton *event )
 		  show_settings();
 	  
 	  // Bottom Left - Quit
-	  if(event->x_root < 140 && event->y_root > 960)
-		  gtk_main_quit();
+	  if(event->x_root < 140 && event->y_root > 960){
+		stop_video_feed();
+		gtk_main_quit();
+	  }
+		
 	  
 	  // Start
 	  if(event->x_root > 110 && event->x_root < 360 && event->y_root > 400 && event->y_root < 520)
@@ -461,8 +481,10 @@ static gboolean key_press_event( GtkWidget *widget, GdkEventKey *event )
 		show_settings();
 	  
 	// Q = Quit
-	if(event->keyval == 113)
+	if(event->keyval == 113){
+		stop_video_feed();
 		gtk_main_quit();
+	}
 	  
 	// Space = Start
 	if(event->keyval == 32)
@@ -614,8 +636,11 @@ int main( int argc, char *argv[])
     G_CALLBACK(gtk_main_quit), NULL);
 
     gtk_widget_show_all(window);
+	start_video_feed();
+    
+	gtk_main();
 
-    gtk_main();
-
+	
+	
     return 0;
 }

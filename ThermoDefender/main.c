@@ -84,7 +84,7 @@ gboolean video_area_expose (GtkWidget *da, gpointer data)
 }
 
 
-static void init_video_area (GtkWidget *da, gpointer data)
+static gboolean init_video_area (GtkWidget *da, gpointer data)
 {
 	GdkPixbuf *pix;
 	GError *err = NULL;
@@ -373,16 +373,19 @@ void update_demo_status(uint8_t status)
 		case 2 :
 			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_on.png");
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_active.png");
+			floodIconUpdated = true;
 			break;
 			
 		case 3 :
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_on.png");
 			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_active.png");
+			floodConfirmedIconUpdated = true;
 			break;
 			
 		case 4 :
 			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_on.png");
 			gtk_image_set_from_file (demoNotificationSent, "demo_notification_sent_active.png");
+			noticeSentIconUpdated = true;
 			break;
 			
 		case 5 : // Reset all to off
@@ -432,12 +435,16 @@ static void stop_video_feed()
 //static void toggle_monitor (GtkWidget *widget, gpointer *data)
 static void toggle_monitor ()
 {	
+	_currentIteration = 0;
 	_monitorActive = !_monitorActive;
 	update_monitor_status_labels(NULL);
+	update_demo_status(5);
 	
-	if(!_monitorActive) {
-		update_demo_status(5);
+	if(!_monitorActive){
+		set_gpio_16(0);
+		set_gpio_12(0);
 	}
+		
 }
 
 // </editor-fold>
@@ -629,10 +636,11 @@ int main( int argc, char *argv[])
     G_CALLBACK(gtk_main_quit), NULL);
 
     gtk_widget_show_all(window);
-
-    gtk_main();
-
 	start_video_feed();
+    
+	gtk_main();
+
+	
 	
     return 0;
 }

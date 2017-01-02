@@ -20,6 +20,7 @@ extern "C" {
 
 extern bool _monitorActive;
 extern bool _demoFinished;
+extern int _currentIteration;
 
 extern int water_tc_differential;
 extern int body_tc_differential;
@@ -27,6 +28,11 @@ extern int fire_tc_differential;
 extern int water_min_detected_pc;
 extern int body_min_detected_pc;
 extern int fire_min_detected_pc;
+
+extern bool floodIconUpdated;
+extern bool floodConfirmedIconUpdated;
+extern bool waterShutoffIconUpdated;
+extern bool noticeSentIconUpdated;
 
 extern uint8_t PUMP_START_DELAY_SECS;
 extern uint8_t WATER_DETECTED_SECS;

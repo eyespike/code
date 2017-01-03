@@ -63,6 +63,7 @@ uint8_t NOTIFCATION_SENT_DELAY_SECS = 4;
 static bool pump_started = false;
 static bool water_detected = false;
 static bool water_detected_confirmed = false;
+static bool water_shutoff = false;
 static bool notice_sent = false;
 static float water_detected_cycle_count;
 
@@ -541,6 +542,9 @@ void* iterate_lepton(void *arg)
 				
 				results = read_lepton_array(_currentIteration, lepton_reference_array, current_lepton_array);
 			
+
+				
+				
 				if(results.water_detected)
 				{
 					water_detected_cycle_count++;
@@ -552,7 +556,7 @@ void* iterate_lepton(void *arg)
 						g_main_context_invoke(mainc, set_demo_status, (gpointer)1);
 						
 					}
-					else if(water_detected && !water_detected_confirmed && !floodIconUpdated && (water_detected_cycle_count/30) > WATER_DETECTED_SECS)
+					else if(water_detected && !water_detected_confirmed && !floodConfirmedIconUpdated && (water_detected_cycle_count/30) > WATER_DETECTED_SECS)
 					{
 						water_detected_cycle_count = 0;
 						water_detected_confirmed = true;
@@ -560,15 +564,16 @@ void* iterate_lepton(void *arg)
 						g_main_context_invoke(mainc, set_demo_status, (gpointer)2);
 						
 					}
-					else if(water_detected && water_detected_confirmed && !floodConfirmedIconUpdated && (water_detected_cycle_count/30) > WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN)
+					else if(water_detected && water_detected_confirmed && !waterShutoffIconUpdated && (water_detected_cycle_count/30) > WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN)
 					{
+						water_detected_cycle_count = 0;
 						set_gpio_16(0);
 						g_main_context_invoke(mainc, set_demo_status, (gpointer)3);
 						
 						
 						
 					}
-					else if(water_detected && water_detected_confirmed && floodConfirmedIconUpdated 
+					else if(water_detected && water_detected_confirmed && waterShutoffIconUpdated 
 							&& !noticeSentIconUpdated && (water_detected_cycle_count/30) > NOTIFCATION_SENT_DELAY_SECS){
 						g_main_context_invoke(mainc, set_demo_status, (gpointer)4);
 						_demoFinished = true;

@@ -99,6 +99,23 @@ static gboolean init_video_area (GtkWidget *da, gpointer data)
 	return FALSE;
 }
 
+static void start_video_feed()
+{
+
+	_active = true;
+	int err;
+	err = pthread_create(&(tid[0]), NULL, &iterate_lepton, NULL);
+	if(err != 0)
+		printf("Threading error: [%s]\n", strerror(err));
+	else
+		printf("Video feed started\n");
+}
+
+static void stop_video_feed()
+{
+	_active = false;
+}
+
 // </editor-fold>
 
 
@@ -250,97 +267,99 @@ static void calibrate_fire (GtkWidget *widget, gpointer *data)
 static void done_settings (GtkWidget *widget, gpointer window)
 {
 	gtk_widget_destroy(GTK_WIDGET(window));
+	start_video_feed();
 }
 
 
 //static void show_settings(GtkWidget *widget, gpointer *data)
 static void show_settings()
 {
+	stop_video_feed();
 	
-  GtkBuilder *builder;
-  GObject *window;
-  GObject *button;
-  GObject *entry;
-  
-  builder = gtk_builder_new ();
-  //gtk_builder_set_application(builder, app_ui);
-  gtk_builder_add_from_file (builder, "builder-settings.xml", NULL);
-  
-  window = gtk_builder_get_object (builder, "settingsWindow");
-  gtk_window_set_transient_for ((GtkWindow*)window, main_window);
-  gtk_window_set_keep_above((GtkWindow*)window, TRUE);
-  gtk_window_set_modal((GtkWindow*)window, TRUE);
-  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-  
-  //--- Detection Variables
-    
-  gchar varStr[8];
-  sprintf(varStr, "%d", water_tc_differential);
-  vEntries.waterDiff = (GtkEntry*)gtk_builder_get_object (builder, "eWaterTcDiff");
-  gtk_entry_set_text(vEntries.waterDiff, varStr);
-  
-  sprintf(varStr, "%d", body_tc_differential);
-  vEntries.bodyDiff = (GtkEntry*)gtk_builder_get_object (builder, "eBodyTcDiff");
-  gtk_entry_set_text(vEntries.bodyDiff, varStr);
-  
-  sprintf(varStr, "%d", fire_tc_differential);
-  vEntries.fireDiff = (GtkEntry*)gtk_builder_get_object (builder, "eFireTcDiff");
-  gtk_entry_set_text(vEntries.fireDiff, varStr);
-    
-  sprintf(varStr, "%d", water_min_detected_pc);
-  vEntries.minWaterPC = (GtkEntry*)gtk_builder_get_object (builder, "eWaterPC");
-  gtk_entry_set_text(vEntries.minWaterPC, varStr);
-  
-  sprintf(varStr, "%d", body_min_detected_pc);
-  vEntries.minBodyPC = (GtkEntry*)gtk_builder_get_object (builder, "eBodyPC");
-  gtk_entry_set_text(vEntries.minBodyPC, varStr);
-  
-  sprintf(varStr, "%d", fire_min_detected_pc);
-  vEntries.minFirePC = (GtkEntry*)gtk_builder_get_object (builder, "eFirePC");
-  gtk_entry_set_text(vEntries.minFirePC, varStr);
-  
-    
-  //--- Calibrate Variables
-  button = gtk_builder_get_object (builder, "btnCalibrateWater");
-  g_signal_connect (button, "clicked", G_CALLBACK (calibrate_water), NULL);
-  
-  button = gtk_builder_get_object (builder, "btnCalibrateBody");
-  g_signal_connect (button, "clicked", G_CALLBACK (calibrate_body), NULL);
-  
-  button = gtk_builder_get_object (builder, "btnCalibrateFire");
-  g_signal_connect (button, "clicked", G_CALLBACK (calibrate_fire), NULL);
-  
-  
-  // --- Delay Variables
-  sprintf(varStr, "%d", WATER_DETECTED_SECS);
-  vEntries.floodDetectDelay = (GtkEntry*)gtk_builder_get_object (builder, "eFloodDetectDelay");
-  gtk_entry_set_text(vEntries.floodDetectDelay, varStr);
-  
-  sprintf(varStr, "%d", WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN);
-  vEntries.floodConfirmedDelay = (GtkEntry*)gtk_builder_get_object (builder, "eFloodConfirmedDelay");
-  gtk_entry_set_text(vEntries.floodConfirmedDelay, varStr);
-  
-  sprintf(varStr, "%d", NOTIFCATION_SENT_DELAY_SECS);
-  vEntries.noticeSentDelay = (GtkEntry*)gtk_builder_get_object (builder, "eNoticeSentDelay");
-  gtk_entry_set_text(vEntries.noticeSentDelay, varStr);
-  
-  
-  //--- Capture Image
-  captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
-  gtk_image_set_from_file (captureImage, "no-image.gif");
-  button = gtk_builder_get_object (builder, "btnCaptureFrame");
-  g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
-  
-  
-  //--- Save
-  button = gtk_builder_get_object (builder, "btnSaveSettings");
-  g_signal_connect (button, "clicked", G_CALLBACK (save_settings), NULL); 
-  
-  //--- Done
-  button = gtk_builder_get_object (builder, "btnDoneSettings");
-  g_signal_connect (button, "clicked", G_CALLBACK (done_settings), (GtkWindow*)window);
-  
-  gtk_widget_show ((GtkWidget*)window);
+	GtkBuilder *builder;
+	GObject *window;
+	GObject *button;
+	GObject *entry;
+
+	builder = gtk_builder_new ();
+	//gtk_builder_set_application(builder, app_ui);
+	gtk_builder_add_from_file (builder, "builder-settings.xml", NULL);
+
+	window = gtk_builder_get_object (builder, "settingsWindow");
+	gtk_window_set_transient_for ((GtkWindow*)window, main_window);
+	gtk_window_set_keep_above((GtkWindow*)window, TRUE);
+	gtk_window_set_modal((GtkWindow*)window, TRUE);
+	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+
+	//--- Detection Variables
+
+	gchar varStr[8];
+	sprintf(varStr, "%d", water_tc_differential);
+	vEntries.waterDiff = (GtkEntry*)gtk_builder_get_object (builder, "eWaterTcDiff");
+	gtk_entry_set_text(vEntries.waterDiff, varStr);
+
+	sprintf(varStr, "%d", body_tc_differential);
+	vEntries.bodyDiff = (GtkEntry*)gtk_builder_get_object (builder, "eBodyTcDiff");
+	gtk_entry_set_text(vEntries.bodyDiff, varStr);
+
+	sprintf(varStr, "%d", fire_tc_differential);
+	vEntries.fireDiff = (GtkEntry*)gtk_builder_get_object (builder, "eFireTcDiff");
+	gtk_entry_set_text(vEntries.fireDiff, varStr);
+
+	sprintf(varStr, "%d", water_min_detected_pc);
+	vEntries.minWaterPC = (GtkEntry*)gtk_builder_get_object (builder, "eWaterPC");
+	gtk_entry_set_text(vEntries.minWaterPC, varStr);
+
+	sprintf(varStr, "%d", body_min_detected_pc);
+	vEntries.minBodyPC = (GtkEntry*)gtk_builder_get_object (builder, "eBodyPC");
+	gtk_entry_set_text(vEntries.minBodyPC, varStr);
+
+	sprintf(varStr, "%d", fire_min_detected_pc);
+	vEntries.minFirePC = (GtkEntry*)gtk_builder_get_object (builder, "eFirePC");
+	gtk_entry_set_text(vEntries.minFirePC, varStr);
+
+
+	//--- Calibrate Variables
+	button = gtk_builder_get_object (builder, "btnCalibrateWater");
+	g_signal_connect (button, "clicked", G_CALLBACK (calibrate_water), NULL);
+
+	button = gtk_builder_get_object (builder, "btnCalibrateBody");
+	g_signal_connect (button, "clicked", G_CALLBACK (calibrate_body), NULL);
+
+	button = gtk_builder_get_object (builder, "btnCalibrateFire");
+	g_signal_connect (button, "clicked", G_CALLBACK (calibrate_fire), NULL);
+
+
+	// --- Delay Variables
+	sprintf(varStr, "%d", WATER_DETECTED_SECS);
+	vEntries.floodDetectDelay = (GtkEntry*)gtk_builder_get_object (builder, "eFloodDetectDelay");
+	gtk_entry_set_text(vEntries.floodDetectDelay, varStr);
+
+	sprintf(varStr, "%d", WATER_DETECTED_CONFIRMED_SECS_TO_SHUTDOWN);
+	vEntries.floodConfirmedDelay = (GtkEntry*)gtk_builder_get_object (builder, "eFloodConfirmedDelay");
+	gtk_entry_set_text(vEntries.floodConfirmedDelay, varStr);
+
+	sprintf(varStr, "%d", NOTIFCATION_SENT_DELAY_SECS);
+	vEntries.noticeSentDelay = (GtkEntry*)gtk_builder_get_object (builder, "eNoticeSentDelay");
+	gtk_entry_set_text(vEntries.noticeSentDelay, varStr);
+
+
+	//--- Capture Image
+	captureImage = (GtkImage*)gtk_builder_get_object (builder, "captureImage");
+	gtk_image_set_from_file (captureImage, "no-image.gif");
+	button = gtk_builder_get_object (builder, "btnCaptureFrame");
+	g_signal_connect (button, "clicked", G_CALLBACK (capture_image), captureImage);
+
+
+	//--- Save
+	button = gtk_builder_get_object (builder, "btnSaveSettings");
+	g_signal_connect (button, "clicked", G_CALLBACK (save_settings), NULL); 
+
+	//--- Done
+	button = gtk_builder_get_object (builder, "btnDoneSettings");
+	g_signal_connect (button, "clicked", G_CALLBACK (done_settings), (GtkWindow*)window);
+
+	gtk_widget_show ((GtkWidget*)window);
 }
 
 // </editor-fold>
@@ -368,18 +387,19 @@ void update_demo_status(uint8_t status)
 			gtk_image_set_from_file (demoStart, "demo_start_on.png");
 			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_active.png");
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_off.png");
+			floodIconUpdated = true;
 			break;
 			
 		case 2 :
 			gtk_image_set_from_file (demoPossibleFlooding, "demo_possible_flooding_on.png");
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_active.png");
-			floodIconUpdated = true;
+			floodConfirmedIconUpdated = true;
 			break;
 			
 		case 3 :
 			gtk_image_set_from_file (demoFloodingConfirmed, "demo_flooding_confirmed_on.png");
 			gtk_image_set_from_file (demoWaterShutOff, "demo_water_shutoff_active.png");
-			floodConfirmedIconUpdated = true;
+			waterShutoffIconUpdated = true;
 			break;
 			
 		case 4 :
@@ -411,24 +431,6 @@ void update_monitor_status_labels(char *labelValue)
 		if(!_demoFinished)
 			update_demo_status(5);
 	}
-}
-
-
-static void start_video_feed()
-{
-
-	_active = true;
-	int err;
-	err = pthread_create(&(tid[0]), NULL, &iterate_lepton, NULL);
-	if(err != 0)
-		printf("Threading error: [%s]\n", strerror(err));
-	else
-		printf("Video feed started\n");
-}
-
-static void stop_video_feed()
-{
-	_active = false;
 }
 
 
@@ -464,10 +466,21 @@ static gboolean button_press_event( GtkWidget *widget, GdkEventButton *event )
 		gtk_main_quit();
 	  }
 		
-	  
 	  // Start
 	  if(event->x_root > 110 && event->x_root < 360 && event->y_root > 400 && event->y_root < 520)
 		  toggle_monitor();
+	  
+	  
+	  // Video area - toggle video
+	  if(event->x_root > 860 && event->x_root < 1600 && event->y_root > 275 && event->y_root < 825){
+	  
+		  if(_active){
+			  stop_video_feed();
+		  } else {
+			  start_video_feed();
+		  }
+	  }
+		  
   }
   return TRUE;
 }

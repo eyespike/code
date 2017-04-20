@@ -22,8 +22,9 @@ Code written in C. The following libraries were installed on the Raspberry Pi:
     ```
 
 ### The Build
-Compiled on the Raspberry Pi using **gcc**. 
-Addtional flags:
+Used NetBeans IDE to develop on local machine and compile directly on the Pi. The netbeans project is included in the repo. You can see how to setup that environment [here].
+
+Compiled on the Raspberry Pi using **gcc**.  Addtional flags:
 > \`pkg-config --cflags gtk+-3.0\` \`pkg-config --libs gtk+-3.0\` \`pkg-config --cflags --libs MagickWand\` -lwiringPi
 
-
+[here]: <http://www.raspberry-projects.com/pi/programming-in-c/compilers-and-ides/netbeans-windows/installing-netbeans-for-c-remote-development-on-a-raspberry-pi>
